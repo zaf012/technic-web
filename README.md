@@ -1,1 +1,1 @@
-# ataylar-technic-web
+# technic-web
