@@ -1,25 +1,36 @@
-import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Input, Space, Popconfirm } from 'antd';
-
-const initialData = [
-  { key: '1', groupName: 'Muhasebe / Finans' },
-  { key: '2', groupName: 'Personel' },
-  { key: '3', groupName: 'Teknik Müdür Yardımcısı' },
-  { key: '4', groupName: 'Teknik Müdür' },
-  { key: '5', groupName: 'Genel Kordinatör' },
-  { key: '6', groupName: 'Araçlar' },
-  { key: '7', groupName: 'Personeller' },
-  { key: '8', groupName: 'Kat Sakinleri' },
-  { key: '9', groupName: 'Müşteri/Tedarikçi' },
-  { key: '10', groupName: 'Tedarikçi' },
-];
+import React, { useState, useEffect } from 'react';
+import { Table, Button, Modal, Form, Input, Space, Popconfirm, message } from 'antd';
+import axios from 'axios';
 
 const CariGrupTanimlari = () => {
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [form] = Form.useForm();
   const [searchText, setSearchText] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  const fetchGroups = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://localhost:8080/api/instant-groups/get-all-groups');
+      if (response.data && response.data.data) {
+        // API'den dönen id'yi key olarak kullan
+        setData(response.data.data.map(item => ({ ...item, key: item.id })));
+      } else {
+        setData([]);
+      }
+    } catch (error) {
+      message.error('Gruplar alınırken hata oluştu!');
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const showModal = (record = null) => {
     setEditingRecord(record);
@@ -84,10 +95,10 @@ const CariGrupTanimlari = () => {
           style={{ width: 240 }}
         />
       </div>
-      <Table columns={columns} dataSource={filteredData} rowKey="key" pagination={{ pageSize: 10 }} />
+      <Table columns={columns} dataSource={filteredData} rowKey="key" loading={loading} pagination={{ pageSize: 10 }} />
       <Modal
         title={editingRecord ? 'Düzenle' : 'Ekle'}
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
         okText="Kaydet"
