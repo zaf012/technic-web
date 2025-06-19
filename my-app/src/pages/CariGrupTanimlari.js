@@ -62,7 +62,16 @@ const CariGrupTanimlari = () => {
           message.error('Güncelleme işlemi başarısız!');
         }
       } else {
-        setData([...data, { ...values, key: Date.now().toString() }]);
+        // Ekleme işlemi
+        try {
+          await axios.post('http://localhost:8080/api/instant-groups/create-group', {
+            groupName: values.groupName
+          });
+          message.success('Grup başarıyla eklendi!');
+          fetchGroups();
+        } catch (error) {
+          message.error('Ekleme işlemi başarısız!');
+        }
       }
       handleCancel();
     });
