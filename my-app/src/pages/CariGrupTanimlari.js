@@ -59,8 +59,14 @@ const CariGrupTanimlari = () => {
     });
   };
 
-  const handleDelete = key => {
-    setData(data.filter(item => item.key !== key));
+  const handleDelete = async key => {
+    try {
+      await axios.delete(`http://localhost:8080/api/instant-groups/delete-group/${key}`);
+      message.success('Grup başarıyla silindi!');
+      fetchGroups(); // Tabloyu güncelle
+    } catch (error) {
+      message.error('Silme işlemi başarısız!');
+    }
   };
 
   const filteredData = data.filter(item =>
