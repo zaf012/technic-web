@@ -49,9 +49,18 @@ const CariGrupTanimlari = () => {
   };
 
   const handleOk = () => {
-    form.validateFields().then(values => {
+    form.validateFields().then(async values => {
       if (editingRecord) {
-        setData(data.map(item => (item.key === editingRecord.key ? { ...editingRecord, ...values } : item)));
+        // Güncelleme işlemi
+        try {
+          await axios.put(`http://localhost:8080/api/instant-groups/update-group-name/${editingRecord.key}`, {
+            groupName: values.groupName
+          });
+          message.success('Grup adı başarıyla güncellendi!');
+          fetchGroups();
+        } catch (error) {
+          message.error('Güncelleme işlemi başarısız!');
+        }
       } else {
         setData([...data, { ...values, key: Date.now().toString() }]);
       }
