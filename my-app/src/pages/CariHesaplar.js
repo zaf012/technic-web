@@ -49,18 +49,32 @@ const CariHesaplar = () => {
   };
 
   const handleOk = () => {
-    form.validateFields().then(values => {
+    form.validateFields().then(async values => {
       if (editingRecord) {
-        setData(data.map(item => (item.key === editingRecord.key ? { ...editingRecord, ...values } : item)));
+        // Güncelleme işlemi (PUT)
+        try {
+          await axios.put(`http://localhost:8080/api/instant-accounts/${editingRecord.key}`, values);
+          message.success('Hesap başarıyla güncellendi!');
+          fetchAccounts();
+        } catch (error) {
+          message.error('Güncelleme işlemi başarısız!');
+        }
       } else {
+        // Ekleme işlemi (local, isterseniz POST ekleyebilirim)
         setData([...data, { ...values, key: Date.now().toString() }]);
       }
       handleCancel();
     });
   };
 
-  const handleDelete = key => {
-    setData(data.filter(item => item.key !== key));
+  const handleDelete = async key => {
+    try {
+      await axios.delete(`http://localhost:8080/api/instant-accounts/${key}`);
+      message.success('Hesap başarıyla silindi!');
+      fetchAccounts();
+    } catch (error) {
+      message.error('Silme işlemi başarısız!');
+    }
   };
 
   // Filtrelenmiş veri
@@ -116,34 +130,34 @@ const CariHesaplar = () => {
         cancelText="İptal"
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="email" label="Kullanıcı Adı" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+          <Form.Item name="email" label="Kullanıcı Adı">
             <Input />
           </Form.Item>
-          <Form.Item name="group" label="Cari Grup" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+          <Form.Item name="group" label="Cari Grup">
             <Input />
           </Form.Item>
-          <Form.Item name="type" label="Tip" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+          <Form.Item name="type" label="Tip">
             <Input />
           </Form.Item>
-          <Form.Item name="name" label="Adı" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+          <Form.Item name="name" label="Adı">
             <Input />
           </Form.Item>
-          <Form.Item name="surname" label="Soyadı" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+          <Form.Item name="surname" label="Soyadı">
             <Input />
           </Form.Item>
-          <Form.Item name="company" label="Firma" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+          <Form.Item name="company" label="Firma">
             <Input />
           </Form.Item>
-          <Form.Item name="manager" label="Yetkili" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+          <Form.Item name="manager" label="Yetkili">
             <Input />
           </Form.Item>
-          <Form.Item name="phone" label="Telefon" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+          <Form.Item name="phone" label="Telefon">
             <Input />
           </Form.Item>
-          <Form.Item name="gsm" label="GSM" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+          <Form.Item name="gsm" label="GSM">
             <Input />
           </Form.Item>
-          <Form.Item name="active" label="Aktif" rules={[{ required: true, message: 'Zorunlu alan' }]}>
+          <Form.Item name="active" label="Aktif">
             <Input />
           </Form.Item>
         </Form>
