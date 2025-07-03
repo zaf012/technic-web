@@ -1,26 +1,36 @@
-import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Input, Space, Popconfirm } from 'antd';
-
-const initialData = Array.from({ length: 100 }, (_, i) => ({
-  key: (i + 1).toString(),
-  email: `user${i + 1}@example.com`,
-  group: i % 2 === 0 ? 'Müşteri/Tedarikçi' : 'Müşteri',
-  type: 'Ana Kullanıcı',
-  name: `Ad${i + 1}`,
-  surname: `Soyad${i + 1}`,
-  company: `Firma ${i + 1}`,
-  manager: `Yetkili ${i + 1}`,
-  phone: `5${String(300000000 + i).padStart(9, '0')}`,
-  gsm: `5${String(300000000 + i).padStart(9, '0')}`,
-  active: '1',
-}));
+import React, { useState, useEffect } from 'react';
+import { Table, Button, Modal, Form, Input, Space, Popconfirm, message } from 'antd';
+import axios from 'axios';
 
 const CariHesaplar = () => {
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [form] = Form.useForm();
   const [searchText, setSearchText] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
+
+  const fetchAccounts = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://localhost:8080/api/instant-accounts/active');
+      if (response.data && response.data.data) {
+        // API'den dönen id veya uygun bir alanı key olarak kullan
+        setData(response.data.data.map(item => ({ ...item, key: item.id || item.key || item.email })));
+      } else {
+        setData([]);
+      }
+    } catch (error) {
+      message.error('Hesaplar alınırken hata oluştu!');
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const showModal = (record = null) => {
     setEditingRecord(record);
@@ -96,7 +106,7 @@ const CariHesaplar = () => {
           style={{ width: 240 }}
         />
       </div>
-      <Table columns={columns} dataSource={filteredData} rowKey="key" />
+      <Table columns={columns} dataSource={filteredData} rowKey="key" loading={loading} />
       <Modal
         title={editingRecord ? 'Düzenle' : 'Ekle'}
         visible={isModalVisible}
