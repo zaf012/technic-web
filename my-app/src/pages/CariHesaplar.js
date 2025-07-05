@@ -85,15 +85,15 @@ const CariHesaplar = () => {
 
   const columns = [
     { title: 'Kullanıcı Adı', dataIndex: 'email', key: 'email', sorter: (a, b) => a.email.localeCompare(b.email) },
-    { title: 'Cari Grup', dataIndex: 'group', key: 'group', sorter: (a, b) => a.group.localeCompare(b.group) },
-    { title: 'Tip', dataIndex: 'type', key: 'type', sorter: (a, b) => a.type.localeCompare(b.type) },
+    { title: 'Cari Grup', dataIndex: 'accountGroupId', key: 'accountGroupId', sorter: (a, b) => a.accountGroupId.localeCompare(b.accountGroupId) },
+    { title: 'Tip', dataIndex: 'userType', key: 'userType', sorter: (a, b) => a.userType.localeCompare(b.userType) },
     { title: 'Adı', dataIndex: 'name', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name) },
     { title: 'Soyadı', dataIndex: 'surname', key: 'surname', sorter: (a, b) => a.surname.localeCompare(b.surname) },
-    { title: 'Firma', dataIndex: 'company', key: 'company', sorter: (a, b) => a.company.localeCompare(b.company) },
-    { title: 'Yetkili', dataIndex: 'manager', key: 'manager', sorter: (a, b) => a.manager.localeCompare(b.manager) },
+    { title: 'Firma', dataIndex: 'companyName', key: 'companyName', sorter: (a, b) => a.companyName.localeCompare(b.companyName) },
+    { title: 'Yetkili', dataIndex: 'authorizedPerson', key: 'authorizedPerson', sorter: (a, b) => a.authorizedPerson.localeCompare(b.authorizedPerson) },
     { title: 'Telefon', dataIndex: 'phone', key: 'phone', sorter: (a, b) => a.phone.localeCompare(b.phone) },
     { title: 'GSM', dataIndex: 'gsm', key: 'gsm', sorter: (a, b) => a.gsm.localeCompare(b.gsm) },
-    { title: 'Aktif', dataIndex: 'active', key: 'active', sorter: (a, b) => a.active.localeCompare(b.active) },
+    { title: 'Aktif', dataIndex: 'isActive', key: 'isActive', sorter: (a, b) => a.isActive.localeCompare(b.isActive) },
     {
       title: 'İşlemler',
       key: 'actions',
