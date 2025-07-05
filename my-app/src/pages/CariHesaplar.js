@@ -109,7 +109,10 @@ const CariHesaplar = () => {
     { title: 'Yetkili', dataIndex: 'authorizedPerson', key: 'authorizedPerson', sorter: (a, b) => a.authorizedPerson.localeCompare(b.authorizedPerson) },
     { title: 'Telefon', dataIndex: 'phone', key: 'phone', sorter: (a, b) => a.phone.localeCompare(b.phone) },
     { title: 'GSM', dataIndex: 'gsm', key: 'gsm', sorter: (a, b) => a.gsm.localeCompare(b.gsm) },
-    { title: 'Aktif', dataIndex: 'isActive', key: 'isActive', sorter: (a, b) => a.isActive.localeCompare(b.isActive) },
+    { title: 'Aktif', dataIndex: 'isActive', key: 'isActive', 
+      render: (isActive) => isActive ? 'Evet' : 'Hayır',
+      sorter: (a, b) => (a.isActive === b.isActive ? 0 : a.isActive ? 1 : -1)
+    },
     {
       title: 'İşlemler',
       key: 'actions',
