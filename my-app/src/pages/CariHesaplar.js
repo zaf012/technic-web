@@ -133,10 +133,10 @@ const CariHesaplar = () => {
           <Form.Item name="email" label="Kullanıcı Adı">
             <Input />
           </Form.Item>
-          <Form.Item name="group" label="Cari Grup">
+          <Form.Item name="accountGroupId" label="Cari Grup">
             <Input />
           </Form.Item>
-          <Form.Item name="type" label="Tip">
+          <Form.Item name="userType" label="Tip">
             <Input />
           </Form.Item>
           <Form.Item name="name" label="Adı">
@@ -145,10 +145,10 @@ const CariHesaplar = () => {
           <Form.Item name="surname" label="Soyadı">
             <Input />
           </Form.Item>
-          <Form.Item name="company" label="Firma">
+          <Form.Item name="companyName" label="Firma">
             <Input />
           </Form.Item>
-          <Form.Item name="manager" label="Yetkili">
+          <Form.Item name="authorizedPerson" label="Yetkili">
             <Input />
           </Form.Item>
           <Form.Item name="phone" label="Telefon">
@@ -157,7 +157,7 @@ const CariHesaplar = () => {
           <Form.Item name="gsm" label="GSM">
             <Input />
           </Form.Item>
-          <Form.Item name="active" label="Aktif">
+          <Form.Item name="isActive" label="Aktif">
             <Input />
           </Form.Item>
         </Form>
