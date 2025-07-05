@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Space, Popconfirm, message } from 'antd';
+import { Table, Button, Modal, Form, Input, Space, Popconfirm, message, Select } from 'antd';
 import axios from 'axios';
 
 const CariHesaplar = () => {
   const [data, setData] = useState([]);
+  const [cariGroups, setCariGroups] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [form] = Form.useForm();
@@ -12,7 +13,22 @@ const CariHesaplar = () => {
 
   useEffect(() => {
     fetchAccounts();
+    fetchGroups();
   }, []);
+
+  const fetchGroups = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/instant-groups/get-all-groups');
+      if (response.data && response.data.data) {
+        setCariGroups(response.data.data);
+      } else {
+        setCariGroups([]);
+      }
+    } catch (error) {
+      message.error('Gruplar alınırken hata oluştu!');
+      setCariGroups([]);
+    }
+  };
 
   const fetchAccounts = async () => {
     setLoading(true);
@@ -134,7 +150,19 @@ const CariHesaplar = () => {
             <Input />
           </Form.Item>
           <Form.Item name="accountGroupId" label="Cari Grup">
-            <Input />
+            <Select
+              placeholder="Cari Grup seçiniz"
+              showSearch
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {cariGroups.map(group => (
+                <Select.Option key={group.id} value={group.id}>
+                  {group.groupName}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item name="userType" label="Tip">
             <Input />
