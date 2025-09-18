@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gelir Gider Takip</title>
+</head>
+<body>
+    <h1>Gelir Gider Takip</h1>
+    <p>Örnek Gelir: <span id="gelir">1.234.567,89</span> TL</p>
+    <p>Örnek Gider: <span id="gider">987.654,32</span> TL</p>
+    <script>
+        function formatNumber(number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+                                 .replace('.', ',');
+        }
+        // Örnek kullanım
+        const gelir = formatNumber(1234567.89);
+        const gider = formatNumber(987654.32);
+        document.getElementById('gelir').innerText = gelir;
+        document.getElementById('gider').innerText = gider;
+    </script>
+</body>
+</html>
