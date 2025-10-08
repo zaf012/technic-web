@@ -31,6 +31,9 @@ const Sidebar = () => (
       <Menu.Item key="/siteler">
         <Link to="/siteler">Siteler</Link>
       </Menu.Item>
+      <Menu.Item key="/sistemler">
+        <Link to="/sistemler">Sistemler</Link>
+      </Menu.Item>
     </Menu.SubMenu>
   </Menu>
 );
