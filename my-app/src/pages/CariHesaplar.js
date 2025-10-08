@@ -7,6 +7,7 @@ const CariHesaplar = () => {
   const [cariGroups, setCariGroups] = useState([]);
   const [sites, setSites] = useState([]);
   const [firms, setFirms] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [form] = Form.useForm();
@@ -18,6 +19,7 @@ const CariHesaplar = () => {
     fetchGroups();
     fetchSites();
     fetchFirms();
+    fetchProjects();
   }, []);
 
   const fetchGroups = async () => {
@@ -59,6 +61,20 @@ const CariHesaplar = () => {
     } catch (error) {
       message.error('Firmalar alınırken hata oluştu!');
       setFirms([]);
+    }
+  };
+
+  const fetchProjects = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/projects/get-all');
+      if (response.data && response.data.data) {
+        setProjects(response.data.data);
+      } else {
+        setProjects([]);
+      }
+    } catch (error) {
+      message.error('Projeler alınırken hata oluştu!');
+      setProjects([]);
     }
   };
 
@@ -249,8 +265,20 @@ const CariHesaplar = () => {
           <Form.Item name="companyShortName" label="Firma Kısa Adı">
             <Input />
           </Form.Item>
-          <Form.Item name="projectName" label="Proje Adı">
-            <Input />
+          <Form.Item name="projectId" label="Proje">
+            <Select
+              placeholder="Proje seçiniz"
+              showSearch
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {projects.map(project => (
+                <Select.Option key={project.id} value={project.id}>
+                  {project.projectName}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item name="authorizedPersonnel" label="Yetkili Personel">
             <Input />
