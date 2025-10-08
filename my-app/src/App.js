@@ -5,6 +5,7 @@ import CariHesaplar from './pages/CariHesaplar';
 import CariGrupTanimlari from './pages/CariGrupTanimlari';
 import Teklifler from './pages/Teklifler';
 import Personeller from './pages/Personeller';
+import UserTypes from './pages/UserTypes';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/cari-grup-tanimlari" element={<CariGrupTanimlari />} />
           <Route path="/teklifler" element={<Teklifler />} />
           <Route path="/personeller" element={<Personeller />} />
+          <Route path="/kullanici-tipleri" element={<UserTypes />} />
         </Routes>
       </AppLayout>
     </Router>

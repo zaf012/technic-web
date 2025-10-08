@@ -18,6 +18,9 @@ const Sidebar = () => (
       <Menu.Item key="/personeller">
         <Link to="/personeller">Personeller</Link>
       </Menu.Item>
+      <Menu.Item key="/kullanici-tipleri">
+        <Link to="/kullanici-tipleri">Kullanıcı Tipleri</Link>
+      </Menu.Item>
     </Menu.SubMenu>
   </Menu>
 );
