@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Space, Popconfirm, message } from 'antd';
+import { Table, Button, Modal, Form, Input, Space, Popconfirm } from 'antd';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Firms = () => {
   const [data, setData] = useState([]);
@@ -24,7 +26,7 @@ const Firms = () => {
         setData([]);
       }
     } catch (error) {
-      message.error('Firmalar alınırken hata oluştu!');
+      toast.error('Firmalar alınırken hata oluştu!');
       setData([]);
     } finally {
       setLoading(false);
@@ -53,19 +55,20 @@ const Firms = () => {
         // Güncelleme işlemi (PUT)
         try {
           await axios.put(`http://localhost:8080/api/firms/update/${editingRecord.id}`, values);
-          message.success('Firma başarıyla güncellendi!');
+          toast.success('Firma başarıyla güncellendi!');
           fetchFirms();
         } catch (error) {
-          message.error('Güncelleme işlemi başarısız!');
+          toast.error(error.response.data.message);
         }
       } else {
         // Ekleme işlemi (POST)
         try {
           await axios.post('http://localhost:8080/api/firms/create', values);
-          message.success('Firma başarıyla oluşturuldu!');
+          toast.success('Firma başarıyla oluşturuldu!');
           fetchFirms();
         } catch (error) {
-          message.error('Oluşturma işlemi başarısız!');
+          console.log(error);
+          toast.error(error.response.data.message);
         }
       }
       handleCancel();
@@ -75,10 +78,10 @@ const Firms = () => {
   const handleDelete = async key => {
     try {
       await axios.delete(`http://localhost:8080/api/firms/delete/${key}`);
-      message.success('Firma başarıyla silindi!');
+      toast.success('Firma başarıyla silindi!');
       fetchFirms();
     } catch (error) {
-      message.error('Silme işlemi başarısız!');
+      toast.error(error.response.data.message);
     }
   };
 
@@ -122,6 +125,17 @@ const Firms = () => {
 
   return (
     <div>
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <Button type="primary" onClick={() => showModal()}>Yeni Firma Ekle</Button>
         <Input.Search
