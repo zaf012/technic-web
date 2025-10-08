@@ -101,12 +101,6 @@ const Firms = () => {
       key: 'createdDate',
       sorter: (a, b) => (a.createdDate || '').localeCompare(b.createdDate || '')
     },
-    { 
-      title: 'Oluşturan', 
-      dataIndex: 'createdBy', 
-      key: 'createdBy',
-      sorter: (a, b) => (a.createdBy || '').localeCompare(b.createdBy || '')
-    },
     {
       title: 'İşlemler',
       key: 'actions',
