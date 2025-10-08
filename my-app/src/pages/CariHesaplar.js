@@ -130,18 +130,67 @@ const CariHesaplar = () => {
 
   const handleOk = () => {
     form.validateFields().then(async values => {
+      // ID'lere karşılık gelen name'leri ekle
+      const enrichedValues = { ...values };
+      
+      // userTypeId için userTypeName ekle
+      if (values.userTypeId) {
+        const selectedUserType = userTypes.find(ut => ut.id === values.userTypeId);
+        if (selectedUserType) {
+          enrichedValues.userTypeName = selectedUserType.userTypeName;
+        }
+      }
+      
+      // accountGroupId için accountGroupName ekle
+      if (values.accountGroupId) {
+        const selectedGroup = cariGroups.find(g => g.id === values.accountGroupId);
+        if (selectedGroup) {
+          enrichedValues.accountGroupName = selectedGroup.groupName;
+        }
+      }
+      
+      // siteId için siteName ekle
+      if (values.siteId) {
+        const selectedSite = sites.find(s => s.id === values.siteId);
+        if (selectedSite) {
+          enrichedValues.siteName = selectedSite.siteName;
+        }
+      }
+      
+      // firmId için firmName ekle
+      if (values.firmId) {
+        const selectedFirm = firms.find(f => f.id === values.firmId);
+        if (selectedFirm) {
+          enrichedValues.firmName = selectedFirm.firmName;
+        }
+      }
+      
+      // projectId için projectName ekle
+      if (values.projectId) {
+        const selectedProject = projects.find(p => p.id === values.projectId);
+        if (selectedProject) {
+          enrichedValues.projectName = selectedProject.projectName;
+        }
+      }
+      
       if (editingRecord) {
         // Güncelleme işlemi (PUT)
         try {
-          await axios.put(`http://localhost:8080/api/instant-accounts/${editingRecord.key}`, values);
+          await axios.put(`http://localhost:8080/api/instant-accounts/${editingRecord.key}`, enrichedValues);
           message.success('Hesap başarıyla güncellendi!');
           fetchAccounts();
         } catch (error) {
           message.error('Güncelleme işlemi başarısız!');
         }
       } else {
-        // Ekleme işlemi (local, isterseniz POST ekleyebilirim)
-        setData([...data, { ...values, key: Date.now().toString() }]);
+        // Ekleme işlemi (POST)
+        try {
+          await axios.post('http://localhost:8080/api/instant-accounts', enrichedValues);
+          message.success('Hesap başarıyla eklendi!');
+          fetchAccounts();
+        } catch (error) {
+          message.error('Ekleme işlemi başarısız!');
+        }
       }
       handleCancel();
     });
