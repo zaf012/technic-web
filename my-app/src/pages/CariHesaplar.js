@@ -5,6 +5,7 @@ import axios from 'axios';
 const CariHesaplar = () => {
   const [data, setData] = useState([]);
   const [cariGroups, setCariGroups] = useState([]);
+  const [sites, setSites] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [form] = Form.useForm();
@@ -14,6 +15,7 @@ const CariHesaplar = () => {
   useEffect(() => {
     fetchAccounts();
     fetchGroups();
+    fetchSites();
   }, []);
 
   const fetchGroups = async () => {
@@ -27,6 +29,20 @@ const CariHesaplar = () => {
     } catch (error) {
       message.error('Gruplar alınırken hata oluştu!');
       setCariGroups([]);
+    }
+  };
+
+  const fetchSites = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/sites/get-all');
+      if (response.data && response.data.data) {
+        setSites(response.data.data);
+      } else {
+        setSites([]);
+      }
+    } catch (error) {
+      message.error('Siteler alınırken hata oluştu!');
+      setSites([]);
     }
   };
 
@@ -172,6 +188,21 @@ const CariHesaplar = () => {
               {cariGroups.map(group => (
                 <Select.Option key={group.id} value={group.id}>
                   {group.groupName}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item name="siteId" label="Site">
+            <Select
+              placeholder="Site seçiniz"
+              showSearch
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {sites.map(site => (
+                <Select.Option key={site.id} value={site.id}>
+                  {site.siteName}
                 </Select.Option>
               ))}
             </Select>
