@@ -6,6 +6,7 @@ const CariHesaplar = () => {
   const [data, setData] = useState([]);
   const [cariGroups, setCariGroups] = useState([]);
   const [sites, setSites] = useState([]);
+  const [firms, setFirms] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [form] = Form.useForm();
@@ -16,6 +17,7 @@ const CariHesaplar = () => {
     fetchAccounts();
     fetchGroups();
     fetchSites();
+    fetchFirms();
   }, []);
 
   const fetchGroups = async () => {
@@ -43,6 +45,20 @@ const CariHesaplar = () => {
     } catch (error) {
       message.error('Siteler alınırken hata oluştu!');
       setSites([]);
+    }
+  };
+
+  const fetchFirms = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/firms/get-all');
+      if (response.data && response.data.data) {
+        setFirms(response.data.data);
+      } else {
+        setFirms([]);
+      }
+    } catch (error) {
+      message.error('Firmalar alınırken hata oluştu!');
+      setFirms([]);
     }
   };
 
@@ -215,8 +231,20 @@ const CariHesaplar = () => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="firmName" label="Firma Adı">
-            <Input />
+          <Form.Item name="firmId" label="Firma">
+            <Select
+              placeholder="Firma seçiniz"
+              showSearch
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {firms.map(firm => (
+                <Select.Option key={firm.id} value={firm.id}>
+                  {firm.firmName}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item name="companyShortName" label="Firma Kısa Adı">
             <Input />
