@@ -99,9 +99,18 @@ const CariHesaplar = () => {
     return values.includes(searchText.toLowerCase());
   });
 
-  const columns = [
-    { title: 'Kullanıcı Adı', dataIndex: 'email', key: 'email', sorter: (a, b) => a.email.localeCompare(b.email) },
-    { title: 'Cari Grup', dataIndex: 'accountGroupId', key: 'accountGroupId', sorter: (a, b) => a.accountGroupId.localeCompare(b.accountGroupId) },
+    const columns = [
+      { title: 'Kullanıcı Adı', dataIndex: 'email', key: 'email', sorter: (a, b) => a.email.localeCompare(b.email) },
+      { title: 'Cari Grup Adı', dataIndex: 'accountGroupName', key: 'accountGroupName', sorter: (a, b) => a.accountGroupName.localeCompare(b.accountGroupName) },
+      { title: 'Tip', dataIndex: 'userTypeName', key: 'userTypeName', sorter: (a, b) => a.userTypeName.localeCompare(b.userTypeName) },
+      { title: 'Yetkli Personel', dataIndex: 'authorizedPersonnel', key: 'authorizedPersonnel', sorter: (a, b) => a.authorizedPersonnel.localeCompare(b.authorizedPersonnel) },
+      { title: 'Firma', dataIndex: 'companyName', key: 'companyName', sorter: (a, b) => a.companyName.localeCompare(b.companyName) },
+      { title: 'Telefon', dataIndex: 'phone', key: 'phone', sorter: (a, b) => a.phone.localeCompare(b.phone) },
+      { title: 'GSM', dataIndex: 'gsm', key: 'gsm', sorter: (a, b) => a.gsm.localeCompare(b.gsm) },
+      { title: 'Aktif', dataIndex: 'isActive', key: 'isActive', 
+        render: (isActive) => isActive ? 'Evet' : 'Hayır',
+        sorter: (a, b) => (a.isActive === b.isActive ? 0 : a.isActive ? 1 : -1)
+      },
     { title: 'Tip', dataIndex: 'userType', key: 'userType', sorter: (a, b) => a.userType.localeCompare(b.userType) },
     { title: 'Adı', dataIndex: 'name', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name) },
     { title: 'Soyadı', dataIndex: 'surname', key: 'surname', sorter: (a, b) => a.surname.localeCompare(b.surname) },
