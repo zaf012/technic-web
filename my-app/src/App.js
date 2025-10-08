@@ -8,6 +8,7 @@ import Personeller from './pages/Personeller';
 import UserTypes from './pages/UserTypes';
 import Firms from './pages/Firms';
 import Projects from './pages/Projects';
+import Sites from './pages/Sites';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/kullanici-tipleri" element={<UserTypes />} />
           <Route path="/firmalar" element={<Firms />} />
           <Route path="/projeler" element={<Projects />} />
+          <Route path="/siteler" element={<Sites />} />
         </Routes>
       </AppLayout>
     </Router>
