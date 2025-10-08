@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Space, Popconfirm, message, Select } from 'antd';
+import { Table, Button, Modal, Form, Input, Space, Popconfirm, message, Select, Radio } from 'antd';
 import axios from 'axios';
 
 const CariHesaplar = () => {
@@ -118,6 +118,7 @@ const CariHesaplar = () => {
     const columns = [
       { title: 'Kullanıcı Adı', dataIndex: 'email', key: 'email', sorter: (a, b) => a.email.localeCompare(b.email) },
       { title: 'Cari Grup Adı', dataIndex: 'accountGroupName', key: 'accountGroupName', sorter: (a, b) => a.accountGroupName.localeCompare(b.accountGroupName) },
+      { title: 'Site Adı', dataIndex: 'siteName', key: 'siteName', sorter: (a, b) => a.siteName.localeCompare(b.siteName) },
       { title: 'Tip', dataIndex: 'userTypeName', key: 'userTypeName', sorter: (a, b) => a.userTypeName.localeCompare(b.userTypeName) },
       { title: 'Yetkli Personel', dataIndex: 'authorizedPersonnel', key: 'authorizedPersonnel', sorter: (a, b) => a.authorizedPersonnel.localeCompare(b.authorizedPersonnel) },
       { title: 'Firma', dataIndex: 'companyName', key: 'companyName', sorter: (a, b) => a.companyName.localeCompare(b.companyName) },
@@ -172,10 +173,17 @@ const CariHesaplar = () => {
         onCancel={handleCancel}
         okText="Kaydet"
         cancelText="İptal"
+        width={800}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="email" label="Kullanıcı Adı">
+          <Form.Item name="username" label="Kullanıcı Adı">
             <Input />
+          </Form.Item>
+          <Form.Item name="email" label="E-posta">
+            <Input type="email" />
+          </Form.Item>
+          <Form.Item name="password" label="Şifre">
+            <Input.Password />
           </Form.Item>
           <Form.Item name="accountGroupId" label="Cari Grup">
             <Select
@@ -202,34 +210,73 @@ const CariHesaplar = () => {
             >
               {sites.map(site => (
                 <Select.Option key={site.id} value={site.id}>
-                  {site.siteName}
+                  {site.siteName} - {site.projectName}
                 </Select.Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="userType" label="Tip">
+          <Form.Item name="firmName" label="Firma Adı">
             <Input />
           </Form.Item>
-          <Form.Item name="name" label="Adı">
+          <Form.Item name="companyShortName" label="Firma Kısa Adı">
             <Input />
           </Form.Item>
-          <Form.Item name="surname" label="Soyadı">
+          <Form.Item name="projectName" label="Proje Adı">
             <Input />
           </Form.Item>
-          <Form.Item name="companyName" label="Firma">
+          <Form.Item name="authorizedPersonnel" label="Yetkili Personel">
             <Input />
           </Form.Item>
-          <Form.Item name="authorizedPerson" label="Yetkili">
-            <Input />
+          <Form.Item name="phoneCountryCode" label="Telefon Ülke Kodu">
+            <Input placeholder="+90" />
           </Form.Item>
           <Form.Item name="phone" label="Telefon">
             <Input />
           </Form.Item>
+          <Form.Item name="gsmCountryCode" label="GSM Ülke Kodu">
+            <Input placeholder="+90" />
+          </Form.Item>
           <Form.Item name="gsm" label="GSM">
             <Input />
           </Form.Item>
-          <Form.Item name="isActive" label="Aktif">
+          <Form.Item name="address" label="Adres">
+            <Input.TextArea rows={2} />
+          </Form.Item>
+          <Form.Item name="fax" label="Fax">
             <Input />
+          </Form.Item>
+          <Form.Item name="pttBox" label="PTT Kutusu">
+            <Input />
+          </Form.Item>
+          <Form.Item name="postalCode" label="Posta Kodu">
+            <Input />
+          </Form.Item>
+          <Form.Item name="taxNumber" label="Vergi Numarası">
+            <Input />
+          </Form.Item>
+          <Form.Item name="tcIdentityNo" label="TC Kimlik No">
+            <Input />
+          </Form.Item>
+          <Form.Item name="bankAddress" label="Banka Adresi">
+            <Input />
+          </Form.Item>
+          <Form.Item name="riskLimit" label="Risk Limiti">
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item name="riskLimitExplanation" label="Risk Limit Açıklaması">
+            <Input.TextArea rows={2} />
+          </Form.Item>
+          <Form.Item name="userStatus" label="Kullanıcı Durumu">
+            <Radio.Group>
+              <Radio value={true}>Aktif</Radio>
+              <Radio value={false}>Pasif</Radio>
+            </Radio.Group>
+          </Form.Item>
+          <Form.Item name="active" label="Cari Hesap Durumu">
+            <Radio.Group>
+              <Radio value={true}>Aktif</Radio>
+              <Radio value={false}>Pasif</Radio>
+            </Radio.Group>
           </Form.Item>
         </Form>
       </Modal>
