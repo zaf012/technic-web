@@ -4,7 +4,8 @@ import { UserOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
 const Sidebar = () => (
-  <Menu mode="inline" defaultSelectedKeys={['/cari-hesaplar']} style={{ height: '100%', borderRight: 0 }}>
+  <Menu mode="inline" defaultSelectedKeys={['/cari-hesaplar']} defaultOpenKeys={['sub1']} style={{ height: '100%', borderRight: 0 }}>
+    {/* defaultOpenKeys={['sub1']}  buraya yazdıgın acık oluyor default olarak  */}
     <Menu.SubMenu key="sub1" icon={<UserOutlined />} title="Cari">
       <Menu.Item key="/cari-hesaplar">
         <Link to="/cari-hesaplar">Cari Hesaplar</Link>
