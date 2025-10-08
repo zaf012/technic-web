@@ -50,9 +50,10 @@ const UserTypes = () => {
   const handleOk = () => {
     form.validateFields().then(async values => {
       if (editingRecord) {
+        
         // Güncelleme işlemi (PUT)
         try {
-          await axios.put(`http://localhost:8080/api/user-types/${editingRecord.key}`, values);
+          await axios.put(`http://localhost:8080/api/user-types/update/${editingRecord.id}`, values);
           message.success('Kullanıcı tipi başarıyla güncellendi!');
           fetchUserTypes();
         } catch (error) {
@@ -74,7 +75,7 @@ const UserTypes = () => {
 
   const handleDelete = async key => {
     try {
-      await axios.delete(`http://localhost:8080/api/user-types/${key}`);
+      await axios.delete(`http://localhost:8080/api/user-types/delete/${key}`);
       message.success('Kullanıcı tipi başarıyla silindi!');
       fetchUserTypes();
     } catch (error) {
