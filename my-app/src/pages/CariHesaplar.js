@@ -8,6 +8,7 @@ const CariHesaplar = () => {
   const [sites, setSites] = useState([]);
   const [firms, setFirms] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [userTypes, setUserTypes] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [form] = Form.useForm();
@@ -20,6 +21,7 @@ const CariHesaplar = () => {
     fetchSites();
     fetchFirms();
     fetchProjects();
+    fetchUserTypes();
   }, []);
 
   const fetchGroups = async () => {
@@ -75,6 +77,20 @@ const CariHesaplar = () => {
     } catch (error) {
       message.error('Projeler alınırken hata oluştu!');
       setProjects([]);
+    }
+  };
+
+  const fetchUserTypes = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/user-types/get-all');
+      if (response.data && response.data.data) {
+        setUserTypes(response.data.data);
+      } else {
+        setUserTypes([]);
+      }
+    } catch (error) {
+      message.error('Kullanıcı tipleri alınırken hata oluştu!');
+      setUserTypes([]);
     }
   };
 
@@ -216,6 +232,21 @@ const CariHesaplar = () => {
           </Form.Item>
           <Form.Item name="password" label="Şifre">
             <Input.Password />
+          </Form.Item>
+          <Form.Item name="userTypeId" label="Kullanıcı Tipi">
+            <Select
+              placeholder="Kullanıcı tipi seçiniz"
+              showSearch
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {userTypes.map(userType => (
+                <Select.Option key={userType.id} value={userType.id}>
+                  {userType.userTypeName}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item name="accountGroupId" label="Cari Grup">
             <Select
