@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Space, Popconfirm, message } from 'antd';
 import axios from 'axios';
+import config from "../config";
 
 const CariGrupTanimlari = () => {
   const [data, setData] = useState([]);
@@ -17,7 +18,7 @@ const CariGrupTanimlari = () => {
   const fetchGroups = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:8080/api/instant-groups/get-all-groups');
+      const response = await axios.get(`${config.apiUrl}/instant-groups/get-all-groups`);
       if (response.data && response.data.data) {
         // API'den dönen id'yi key olarak kullan
         setData(response.data.data.map(item => ({ ...item, key: item.id })));
@@ -53,7 +54,7 @@ const CariGrupTanimlari = () => {
       if (editingRecord) {
         // Güncelleme işlemi
         try {
-          await axios.put(`http://localhost:8080/api/instant-groups/update-group-name/${editingRecord.key}`, {
+          await axios.put(`${config.apiUrl}/instant-groups/update-group-name/${editingRecord.key}`, {
             groupName: values.groupName
           });
           message.success('Grup adı başarıyla güncellendi!');
@@ -64,7 +65,7 @@ const CariGrupTanimlari = () => {
       } else {
         // Ekleme işlemi
         try {
-          await axios.post('http://localhost:8080/api/instant-groups/create-group', {
+          await axios.post(`${config.apiUrl}/instant-groups/create-group`, {
             groupName: values.groupName
           });
           message.success('Grup başarıyla eklendi!');
@@ -79,7 +80,7 @@ const CariGrupTanimlari = () => {
 
   const handleDelete = async key => {
     try {
-      await axios.delete(`http://localhost:8080/api/instant-groups/delete-group/${key}`);
+      await axios.delete(`${config.apiUrl}/instant-groups/delete-group/${key}`);
       message.success('Grup başarıyla silindi!');
       fetchGroups(); // Tabloyu güncelle
     } catch (error) {
