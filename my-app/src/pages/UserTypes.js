@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Space, Popconfirm, message } from 'antd';
 import axios from 'axios';
+import config from '../config';
 
 const UserTypes = () => {
   const [data, setData] = useState([]);
@@ -17,7 +18,7 @@ const UserTypes = () => {
   const fetchUserTypes = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:8080/api/user-types/get-all');
+      const response = await axios.get(`${config.apiUrl}/user-types/get-all`);
       if (response.data && response.data.data) {
         setData(response.data.data.map(item => ({ ...item, key: item.id })));
       } else {
@@ -53,7 +54,7 @@ const UserTypes = () => {
         
         // Güncelleme işlemi (PUT)
         try {
-          await axios.put(`http://localhost:8080/api/user-types/update/${editingRecord.id}`, values);
+          await axios.put(`${config.apiUrl}/user-types/update/${editingRecord.id}`, values);
           message.success('Kullanıcı tipi başarıyla güncellendi!');
           fetchUserTypes();
         } catch (error) {
@@ -62,7 +63,7 @@ const UserTypes = () => {
       } else {
         // Ekleme işlemi (POST)
         try {
-          await axios.post('http://localhost:8080/api/user-types/create', values);
+          await axios.post(`${config.apiUrl}/user-types/create`, values);
           message.success('Kullanıcı tipi başarıyla oluşturuldu!');
           fetchUserTypes();
         } catch (error) {
@@ -75,7 +76,7 @@ const UserTypes = () => {
 
   const handleDelete = async key => {
     try {
-      await axios.delete(`http://localhost:8080/api/user-types/delete/${key}`);
+      await axios.delete(`${config.apiUrl}/user-types/delete/${key}`);
       message.success('Kullanıcı tipi başarıyla silindi!');
       fetchUserTypes();
     } catch (error) {

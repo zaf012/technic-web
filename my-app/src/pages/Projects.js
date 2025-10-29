@@ -3,6 +3,7 @@ import { Table, Button, Modal, Form, Input, Space, Popconfirm, Select } from 'an
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import config from '../config';
 
 const Projects = () => {
   const [data, setData] = useState([]);
@@ -21,7 +22,7 @@ const Projects = () => {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:8080/api/projects/get-all');
+      const response = await axios.get(`${config.apiUrl}/projects/get-all`);
       if (response.data && response.data.data) {
         setData(response.data.data.map(item => ({ ...item, key: item.id })));
       } else {
@@ -37,7 +38,7 @@ const Projects = () => {
 
   const fetchFirms = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/firms/get-all');
+      const response = await axios.get(`${config.apiUrl}/firms/get-all`);
       if (response.data && response.data.data) {
         setFirms(response.data.data);
       } else {
@@ -98,7 +99,7 @@ const Projects = () => {
       if (editingRecord) {
         // Güncelleme işlemi (PUT)
         try {
-          await axios.put(`http://localhost:8080/api/projects/update/${editingRecord.id}`, enrichedValues);
+          await axios.put(`${config.apiUrl}/projects/update/${editingRecord.id}`, enrichedValues);
           toast.success('Proje başarıyla güncellendi!');
           fetchProjects();
         } catch (error) {
@@ -107,7 +108,7 @@ const Projects = () => {
       } else {
         // Ekleme işlemi (POST)
         try {
-          await axios.post('http://localhost:8080/api/projects/create', enrichedValues);
+          await axios.post(`${config.apiUrl}/projects/create`, enrichedValues);
           toast.success('Proje başarıyla oluşturuldu!');
           fetchProjects();
         } catch (error) {
@@ -121,7 +122,7 @@ const Projects = () => {
 
   const handleDelete = async key => {
     try {
-      await axios.delete(`http://localhost:8080/api/projects/delete/${key}`);
+      await axios.delete(`${config.apiUrl}/projects/delete/${key}`);
       toast.success('Proje başarıyla silindi!');
       fetchProjects();
     } catch (error) {

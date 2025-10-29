@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+my-app/node_modules/
+
+# Environment files
+.env.local
+my-app/.env.local
+
+# IDE files
+.idea/workspace.xml
+.idea/copilotDiffState.xml
+.idea/copilot.data.migration.agent.xml
+
+# Build files
+my-app/build/
+
+# Misc
+.DS_Store
+package-lock.json
+package.json
+

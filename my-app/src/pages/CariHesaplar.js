@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Space, Popconfirm, message, Select, Radio } from 'antd';
 import axios from 'axios';
+import config from '../config';
 
 const CariHesaplar = () => {
   const [data, setData] = useState([]);
@@ -26,7 +27,7 @@ const CariHesaplar = () => {
 
   const fetchGroups = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/instant-groups/get-all-groups');
+      const response = await axios.get(`${config.apiUrl}/instant-groups/get-all-groups`);
       if (response.data && response.data.data) {
         setCariGroups(response.data.data);
       } else {
@@ -40,7 +41,7 @@ const CariHesaplar = () => {
 
   const fetchSites = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/sites/get-all');
+      const response = await axios.get(`${config.apiUrl}/sites/get-all`);
       if (response.data && response.data.data) {
         setSites(response.data.data);
       } else {
@@ -54,7 +55,7 @@ const CariHesaplar = () => {
 
   const fetchFirms = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/firms/get-all');
+      const response = await axios.get(`${config.apiUrl}/firms/get-all`);
       if (response.data && response.data.data) {
         setFirms(response.data.data);
       } else {
@@ -68,7 +69,7 @@ const CariHesaplar = () => {
 
   const fetchProjects = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/projects/get-all');
+      const response = await axios.get(`${config.apiUrl}/projects/get-all`);
       if (response.data && response.data.data) {
         setProjects(response.data.data);
       } else {
@@ -82,7 +83,7 @@ const CariHesaplar = () => {
 
   const fetchUserTypes = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/user-types/get-all');
+      const response = await axios.get(`${config.apiUrl}/user-types/get-all`);
       if (response.data && response.data.data) {
         setUserTypes(response.data.data);
       } else {
@@ -97,7 +98,7 @@ const CariHesaplar = () => {
   const fetchAccounts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:8080/api/instant-accounts/active');
+      const response = await axios.get(`${config.apiUrl}/instant-accounts/active`);
       if (response.data && response.data.data) {
         // API'den dönen id veya uygun bir alanı key olarak kullan
         setData(response.data.data.map(item => ({ ...item, key: item.id || item.key || item.email })));
@@ -176,7 +177,7 @@ const CariHesaplar = () => {
       if (editingRecord) {
         // Güncelleme işlemi (PUT)
         try {
-          await axios.put(`http://localhost:8080/api/instant-accounts/${editingRecord.key}`, enrichedValues);
+          await axios.put(`${config.apiUrl}/instant-accounts/${editingRecord.key}`, enrichedValues);
           message.success('Hesap başarıyla güncellendi!');
           fetchAccounts();
         } catch (error) {
@@ -185,7 +186,7 @@ const CariHesaplar = () => {
       } else {
         // Ekleme işlemi (POST)
         try {
-          await axios.post('http://localhost:8080/api/instant-accounts', enrichedValues);
+          await axios.post(`${config.apiUrl}/instant-accounts`, enrichedValues);
           message.success('Hesap başarıyla eklendi!');
           fetchAccounts();
         } catch (error) {
@@ -198,7 +199,7 @@ const CariHesaplar = () => {
 
   const handleDelete = async key => {
     try {
-      await axios.delete(`http://localhost:8080/api/instant-accounts/${key}`);
+      await axios.delete(`${config.apiUrl}/instant-accounts/${key}`);
       message.success('Hesap başarıyla silindi!');
       fetchAccounts();
     } catch (error) {
@@ -419,4 +420,5 @@ const CariHesaplar = () => {
   );
 };
 
-export default CariHesaplar; 
+export default CariHesaplar;
+

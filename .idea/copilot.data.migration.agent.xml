@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AgentMigrationStateService">
+    <option name="pendingTurns">
+      <map>
+        <entry key="97c237ef-7200-4fc5-ab50-f0234c892ef5">
+          <value>
+            <set>
+              <option value="d0498bdf-9e2f-4799-9947-a34dbd3b2917" />
+              <option value="e526de97-1fff-4532-873b-9bdb8b4db6c7" />
+            </set>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <pendingWorkingSetItems>
+      <entry key="97c237ef-7200-4fc5-ab50-f0234c892ef5">
+        <set>
+          <option value="file://$PROJECT_DIR$/my-app/.env.local" />
+          <option value="file://$PROJECT_DIR$/my-app/.env.production" />
+          <option value="file://$PROJECT_DIR$/my-app/src/pages/Sites.js" />
+          <option value="file://$PROJECT_DIR$/my-app/src/pages/Firms.js" />
+          <option value="file://$PROJECT_DIR$/my-app/src/pages/UserTypes.js" />
+          <option value="file://$PROJECT_DIR$/my-app/src/pages/Systems.js" />
+          <option value="file://$PROJECT_DIR$/my-app/src/pages/CariHesaplar.js" />
+        </set>
+      </entry>
+    </pendingWorkingSetItems>
+  </component>
+</project>

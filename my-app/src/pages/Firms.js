@@ -3,6 +3,7 @@ import { Table, Button, Modal, Form, Input, Space, Popconfirm } from 'antd';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import config from '../config';
 
 const Firms = () => {
   const [data, setData] = useState([]);
@@ -19,7 +20,7 @@ const Firms = () => {
   const fetchFirms = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:8080/api/firms/get-all');
+      const response = await axios.get(`${config.apiUrl}/firms/get-all`);
       if (response.data && response.data.data) {
         setData(response.data.data.map(item => ({ ...item, key: item.id })));
       } else {
@@ -54,7 +55,7 @@ const Firms = () => {
       if (editingRecord) {
         // Güncelleme işlemi (PUT)
         try {
-          await axios.put(`http://localhost:8080/api/firms/update/${editingRecord.id}`, values);
+          await axios.put(`${config.apiUrl}/firms/update/${editingRecord.id}`, values);
           toast.success('Firma başarıyla güncellendi!');
           fetchFirms();
         } catch (error) {
@@ -63,7 +64,7 @@ const Firms = () => {
       } else {
         // Ekleme işlemi (POST)
         try {
-          await axios.post('http://localhost:8080/api/firms/create', values);
+          await axios.post(`${config.apiUrl}/firms/create`, values);
           toast.success('Firma başarıyla oluşturuldu!');
           fetchFirms();
         } catch (error) {
@@ -77,7 +78,7 @@ const Firms = () => {
 
   const handleDelete = async key => {
     try {
-      await axios.delete(`http://localhost:8080/api/firms/delete/${key}`);
+      await axios.delete(`${config.apiUrl}/firms/delete/${key}`);
       toast.success('Firma başarıyla silindi!');
       fetchFirms();
     } catch (error) {

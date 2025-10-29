@@ -3,6 +3,7 @@ import { Table, Button, Modal, Form, Input, Space, Popconfirm, Radio, InputNumbe
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import config from '../config';
 
 const Systems = () => {
   const [data, setData] = useState([]);
@@ -19,7 +20,7 @@ const Systems = () => {
   const fetchSystems = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:8080/api/system-info/get-all-systems');
+      const response = await axios.get(`${config.apiUrl}/system-info/get-all-systems`);
       if (response.data ) {
         setData(response.data);
       } else {
@@ -70,7 +71,7 @@ const Systems = () => {
           ...values
         };
         try {
-          await axios.put(`http://localhost:8080/api/system-info/systems/${editingRecord.id}`, updateData);
+          await axios.put(`${config.apiUrl}/system-info/systems/${editingRecord.id}`, updateData);
           toast.success('Sistem başarıyla güncellendi!');
           fetchSystems();
         } catch (error) {
@@ -79,7 +80,7 @@ const Systems = () => {
       } else {
         // Ekleme işlemi (POST)
         try {
-          await axios.post('http://localhost:8080/api/system-info/systems', values);
+          await axios.post(`${config.apiUrl}/system-info/systems`, values);
           toast.success('Sistem başarıyla oluşturuldu!');
           fetchSystems();
         } catch (error) {
@@ -93,7 +94,7 @@ const Systems = () => {
 
   const handleDelete = async key => {
     try {
-      await axios.delete(`http://localhost:8080/api/system-info/systems/${key}`);
+      await axios.delete(`${config.apiUrl}/system-info/systems/${key}`);
       toast.success('Sistem başarıyla silindi!');
       fetchSystems();
     } catch (error) {
