@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AgentMigrationStateService">
+    <option name="pendingSessionIds">
+      <option value="97c237ef-7200-4fc5-ab50-f0234c892ef5" />
+    </option>
     <option name="pendingTurns">
       <map>
         <entry key="97c237ef-7200-4fc5-ab50-f0234c892ef5">
@@ -8,6 +11,8 @@
             <set>
               <option value="d0498bdf-9e2f-4799-9947-a34dbd3b2917" />
               <option value="e526de97-1fff-4532-873b-9bdb8b4db6c7" />
+              <option value="dd70919f-3540-4199-92ff-dbcc3f8863ed" />
+              <option value="0ff8f3f9-aa6a-4542-9497-730ad0dc5e63" />
             </set>
           </value>
         </entry>
@@ -23,6 +28,9 @@
           <option value="file://$PROJECT_DIR$/my-app/src/pages/UserTypes.js" />
           <option value="file://$PROJECT_DIR$/my-app/src/pages/Systems.js" />
           <option value="file://$PROJECT_DIR$/my-app/src/pages/CariHesaplar.js" />
+          <option value="file://$PROJECT_DIR$/my-app/src/pages/Projects.js" />
+          <option value="file://$PROJECT_DIR$/my-app/package.json" />
+          <option value="file://$PROJECT_DIR$/.gitignore" />
         </set>
       </entry>
     </pendingWorkingSetItems>

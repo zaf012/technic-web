@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8e7332da-ba86-47b5-97e2-5bae6fcef978" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my-app/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my-app/.env.prod" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my-app/.env.production" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my-app/src/config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my-app/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/my-app/package.json" afterDir="false" />
-    </list>
+    <list default="true" id="8e7332da-ba86-47b5-97e2-5bae6fcef978" name="Changes" comment="feat: Add environment configuration for local and production&#10;- Add config.js for centralized API URL management&#10;- Update all API calls to use config.apiUrl&#10;- Add .env.local and .env.prod files&#10;- Add cross-env for build scripts&#10;- Update package.json with build:local and build:prod scripts" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,6 +20,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "zaf012"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/zaf012/technic-web.git",
+    "accountId": "3d1621c0-9c5d-47aa-a4e3-2279dc8e3c57"
+  }
+}]]></component>
   <component name="PackageJsonUpdateNotifier">
     <dismissed value="$PROJECT_DIR$/my-app/package.json" />
   </component>
@@ -41,6 +45,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -78,11 +83,24 @@
       <workItem from="1760345027289" duration="1799000" />
       <workItem from="1760884938533" duration="648000" />
       <workItem from="1760899685078" duration="597000" />
-      <workItem from="1760937820863" duration="5073000" />
+      <workItem from="1760937820863" duration="5960000" />
     </task>
+    <task id="LOCAL-00001" summary="feat: Add environment configuration for local and production&#10;- Add config.js for centralized API URL management&#10;- Update all API calls to use config.apiUrl&#10;- Add .env.local and .env.prod files&#10;- Add cross-env for build scripts&#10;- Update package.json with build:local and build:prod scripts">
+      <option name="closed" value="true" />
+      <created>1761742207123</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1761742207123</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat: Add environment configuration for local and production&#10;- Add config.js for centralized API URL management&#10;- Update all API calls to use config.apiUrl&#10;- Add .env.local and .env.prod files&#10;- Add cross-env for build scripts&#10;- Update package.json with build:local and build:prod scripts" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: Add environment configuration for local and production&#10;- Add config.js for centralized API URL management&#10;- Update all API calls to use config.apiUrl&#10;- Add .env.local and .env.prod files&#10;- Add cross-env for build scripts&#10;- Update package.json with build:local and build:prod scripts" />
   </component>
 </project>
