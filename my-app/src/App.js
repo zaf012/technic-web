@@ -9,6 +9,8 @@ import UserTypes from './pages/UserTypes';
 import Firms from './pages/Firms';
 import Projects from './pages/Projects';
 import Sites from './pages/Sites';
+import Blocks from './pages/Blocks';
+import Squares from './pages/Squares';
 import Systems from './pages/Systems';
 
 function App() {
@@ -24,6 +26,9 @@ function App() {
           <Route path="/firmalar" element={<Firms />} />
           <Route path="/projeler" element={<Projects />} />
           <Route path="/siteler" element={<Sites />} />
+          <Route path="/sites" element={<Sites />} />
+          <Route path="/blocks" element={<Blocks />} />
+          <Route path="/squares" element={<Squares />} />
           <Route path="/sistemler" element={<Systems />} />
         </Routes>
       </AppLayout>

@@ -5,9 +5,9 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import config from '../config';
 
-const Sites = () => {
+const Squares = () => {
   const [data, setData] = useState([]);
-  const [projects, setProjects] = useState([]);
+  const [blocks, setBlocks] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [form] = Form.useForm();
@@ -15,63 +15,60 @@ const Sites = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchSites();
-    fetchProjects();
+    fetchSquares();
+    fetchBlocks();
   }, []);
 
-  const fetchSites = async () => {
+  const fetchSquares = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${config.apiUrl}/sites`);
+      const response = await axios.get(`${config.apiUrl}/squares`);
       if (response.data && response.data.data) {
         setData(response.data.data.map(item => ({ ...item, key: item.id })));
       } else {
         setData([]);
       }
     } catch (error) {
-      toast.error('Siteler alınırken hata oluştu!');
+      toast.error('Adalar alınırken hata oluştu!');
       setData([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchProjects = async () => {
+  const fetchBlocks = async () => {
     try {
-      const response = await axios.get(`${config.apiUrl}/projects/get-all`);
+      const response = await axios.get(`${config.apiUrl}/blocks`);
       if (response.data && response.data.data) {
-        setProjects(response.data.data);
+        setBlocks(response.data.data);
       } else {
-        setProjects([]);
+        setBlocks([]);
       }
     } catch (error) {
-      toast.error('Projeler alınırken hata oluştu!');
-      setProjects([]);
+      toast.error('Bloklar alınırken hata oluştu!');
+      setBlocks([]);
     }
   };
 
   const showModal = async (record = null) => {
-    // Eğer projects listesi boşsa, önce projeleri yükle
-    if (projects.length === 0) {
-      await fetchProjects();
+    if (blocks.length === 0) {
+      await fetchBlocks();
     }
     
     setEditingRecord(record);
     setIsModalVisible(true);
     
     if (record) {
-      // Kısa bir süre bekle ki projects state güncellensin
       setTimeout(() => {
-        // projectId'yi belirle - önce record'daki projectId'ye bak, yoksa projectName'den bul
-        let projectId = record.projectId;
-        if (!projectId && record.projectName) {
-          const selectedProject = projects.find(p => p.projectName === record.projectName);
-          projectId = selectedProject ? selectedProject.id : null;
+        let blockId = record.blockId;
+        if (!blockId && record.blockName) {
+          const selectedBlock = blocks.find(b => b.blockName === record.blockName);
+          blockId = selectedBlock ? selectedBlock.id : null;
         }
         
         form.setFieldsValue({
-          siteName: record.siteName,
-          projectId: projectId,
+          squareName: record.squareName,
+          blockId: blockId,
           description: record.description
         });
       }, 100);
@@ -88,33 +85,30 @@ const Sites = () => {
 
   const handleOk = () => {
     form.validateFields().then(async values => {
-      // projectId için projectName ekle
       const enrichedValues = { ...values };
-      if (values.projectId) {
-        const selectedProject = projects.find(p => p.id === values.projectId);
-        if (selectedProject) {
-          enrichedValues.projectName = selectedProject.projectName;
+      if (values.blockId) {
+        const selectedBlock = blocks.find(b => b.id === values.blockId);
+        if (selectedBlock) {
+          enrichedValues.blockName = selectedBlock.blockName;
         }
       }
 
       if (editingRecord) {
-        // Güncelleme işlemi (PUT)
         try {
-          await axios.put(`${config.apiUrl}/sites/${editingRecord.id}`, enrichedValues);
-          toast.success('Site başarıyla güncellendi!');
-          fetchSites();
+          await axios.put(`${config.apiUrl}/squares/${editingRecord.id}`, enrichedValues);
+          toast.success('Ada başarıyla güncellendi!');
+          fetchSquares();
         } catch (error) {
-          toast.error(error.response?.data?.message || 'Site güncellenirken hata oluştu!');
+          toast.error(error.response?.data?.message || 'Ada güncellenirken hata oluştu!');
         }
       } else {
-        // Ekleme işlemi (POST)
         try {
-          await axios.post(`${config.apiUrl}/sites`, enrichedValues);
-          toast.success('Site başarıyla oluşturuldu!');
-          fetchSites();
+          await axios.post(`${config.apiUrl}/squares`, enrichedValues);
+          toast.success('Ada başarıyla oluşturuldu!');
+          fetchSquares();
         } catch (error) {
           console.log(error);
-          toast.error(error.response?.data?.message || 'Site oluşturulurken hata oluştu!');
+          toast.error(error.response?.data?.message || 'Ada oluşturulurken hata oluştu!');
         }
       }
       handleCancel();
@@ -123,15 +117,14 @@ const Sites = () => {
 
   const handleDelete = async key => {
     try {
-      await axios.delete(`${config.apiUrl}/sites/${key}`);
-      toast.success('Site başarıyla silindi!');
-      fetchSites();
+      await axios.delete(`${config.apiUrl}/squares/${key}`);
+      toast.success('Ada başarıyla silindi!');
+      fetchSquares();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Site silinirken hata oluştu!');
+      toast.error(error.response?.data?.message || 'Ada silinirken hata oluştu!');
     }
   };
 
-  // Filtrelenmiş veri
   const filteredData = data.filter(item => {
     const values = Object.values(item).join(' ').toLowerCase();
     return values.includes(searchText.toLowerCase());
@@ -139,16 +132,16 @@ const Sites = () => {
 
   const columns = [
     { 
-      title: 'Site Adı', 
-      dataIndex: 'siteName', 
-      key: 'siteName', 
-      sorter: (a, b) => (a.siteName || '').localeCompare(b.siteName || '') 
+      title: 'Ada Adı', 
+      dataIndex: 'squareName', 
+      key: 'squareName', 
+      sorter: (a, b) => (a.squareName || '').localeCompare(b.squareName || '') 
     },
     { 
-      title: 'Proje Adı', 
-      dataIndex: 'projectName', 
-      key: 'projectName', 
-      sorter: (a, b) => (a.projectName || '').localeCompare(b.projectName || '') 
+      title: 'Blok Adı', 
+      dataIndex: 'blockName', 
+      key: 'blockName', 
+      sorter: (a, b) => (a.blockName || '').localeCompare(b.blockName || '') 
     },
     { 
       title: 'Açıklama', 
@@ -160,15 +153,7 @@ const Sites = () => {
       title: 'Oluşturulma Tarihi', 
       dataIndex: 'createdDate', 
       key: 'createdDate',
-      render: (text) => text ? new Date(text).toLocaleString('tr-TR') : '-',
       sorter: (a, b) => (a.createdDate || '').localeCompare(b.createdDate || '')
-    },
-    { 
-      title: 'Güncellenme Tarihi', 
-      dataIndex: 'updatedDate', 
-      key: 'updatedDate',
-      render: (text) => text ? new Date(text).toLocaleString('tr-TR') : '-',
-      sorter: (a, b) => (a.updatedDate || '').localeCompare(b.updatedDate || '')
     },
     {
       title: 'İşlemler',
@@ -203,7 +188,7 @@ const Sites = () => {
         pauseOnHover
       />
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <Button type="primary" onClick={() => showModal()}>Yeni Site Ekle</Button>
+        <Button type="primary" onClick={() => showModal()}>Yeni Ada Ekle</Button>
         <Input.Search
           placeholder="Arama yap..."
           allowClear
@@ -214,7 +199,7 @@ const Sites = () => {
       </div>
       <Table columns={columns} dataSource={filteredData} rowKey="key" loading={loading} />
       <Modal
-        title={editingRecord ? 'Site Düzenle' : 'Yeni Site Ekle'}
+        title={editingRecord ? 'Ada Düzenle' : 'Yeni Ada Ekle'}
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -224,41 +209,41 @@ const Sites = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item 
-            name="projectId" 
-            label="Proje"
+            name="blockId" 
+            label="Blok"
             rules={[
-              { required: true, message: 'Proje seçimi zorunludur!' }
+              { required: true, message: 'Blok seçimi zorunludur!' }
             ]}
           >
             <Select
-              placeholder="Proje seçiniz"
+              placeholder="Blok seçiniz"
               showSearch
               filterOption={(input, option) =>
                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
             >
-              {projects.map(project => (
-                <Select.Option key={project.id} value={project.id}>
-                  {project.projectName}
+              {blocks.map(block => (
+                <Select.Option key={block.id} value={block.id}>
+                  {block.blockName}
                 </Select.Option>
               ))}
             </Select>
           </Form.Item>
           <Form.Item 
-            name="siteName" 
-            label="Site Adı"
+            name="squareName" 
+            label="Ada Adı"
             rules={[
-              { required: true, message: 'Site adı zorunludur!' },
-              { min: 2, message: 'En az 2 karakter olmalıdır!' }
+              { required: true, message: 'Ada adı zorunludur!' },
+              { min: 1, message: 'En az 1 karakter olmalıdır!' }
             ]}
           >
-            <Input placeholder="Örn: DAP Mesa Kartal, TOKİ Mamak Konutları, vb." />
+            <Input placeholder="Örn: Ada 4, Ada 10, vb." />
           </Form.Item>
           <Form.Item 
             name="description" 
             label="Açıklama"
           >
-            <Input.TextArea rows={3} placeholder="Site açıklaması..." />
+            <Input.TextArea rows={3} placeholder="Ada açıklaması..." />
           </Form.Item>
         </Form>
       </Modal>
@@ -266,4 +251,5 @@ const Sites = () => {
   );
 };
 
-export default Sites;
+export default Squares;
+

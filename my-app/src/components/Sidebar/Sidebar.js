@@ -1,6 +1,6 @@
 import React from 'react';
 import { Menu } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, HomeOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
 const Sidebar = () => (
@@ -28,12 +28,20 @@ const Sidebar = () => (
       <Menu.Item key="/projeler">
         <Link to="/projeler">Projeler</Link>
       </Menu.Item>
-      <Menu.Item key="/siteler">
-        <Link to="/siteler">Siteler</Link>
-      </Menu.Item>
       <Menu.Item key="/sistemler">
         <Link to="/sistemler">Sistemler</Link>
       </Menu.Item>
+      <Menu.SubMenu key="sub2" icon={<HomeOutlined />} title="Siteler">
+        <Menu.Item key="/sites">
+          <Link to="/sites">Site</Link>
+        </Menu.Item>
+        <Menu.Item key="/blocks">
+          <Link to="/blocks">Blok</Link>
+        </Menu.Item>
+        <Menu.Item key="/squares">
+          <Link to="/squares">Ada</Link>
+        </Menu.Item>
+      </Menu.SubMenu>
     </Menu.SubMenu>
   </Menu>
 );
