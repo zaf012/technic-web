@@ -7,7 +7,7 @@ import config from '../config';
 
 const Squares = () => {
   const [data, setData] = useState([]);
-  const [blocks, setBlocks] = useState([]);
+  const [sites, setSites] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [form] = Form.useForm();
@@ -16,14 +16,19 @@ const Squares = () => {
 
   useEffect(() => {
     fetchSquares();
-    fetchBlocks();
+    fetchSites();
   }, []);
 
   const fetchSquares = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${config.apiUrl}/squares`);
-      if (response.data && response.data.data) {
+      const response = await axios.get(`${config.apiUrl}/squares/get-all`);
+      console.log('Squares API Response:', response.data); // Debug için
+
+      // Response direkt array olarak geliyor
+      if (Array.isArray(response.data)) {
+        setData(response.data.map(item => ({ ...item, key: item.id })));
+      } else if (response.data && response.data.data) {
         setData(response.data.data.map(item => ({ ...item, key: item.id })));
       } else {
         setData([]);
@@ -36,23 +41,23 @@ const Squares = () => {
     }
   };
 
-  const fetchBlocks = async () => {
+  const fetchSites = async () => {
     try {
-      const response = await axios.get(`${config.apiUrl}/blocks`);
+      const response = await axios.get(`${config.apiUrl}/sites/get-all`);
       if (response.data && response.data.data) {
-        setBlocks(response.data.data);
+        setSites(response.data.data);
       } else {
-        setBlocks([]);
+        setSites([]);
       }
     } catch (error) {
-      toast.error('Bloklar alınırken hata oluştu!');
-      setBlocks([]);
+      toast.error('Siteler alınırken hata oluştu!');
+      setSites([]);
     }
   };
 
   const showModal = async (record = null) => {
-    if (blocks.length === 0) {
-      await fetchBlocks();
+    if (sites.length === 0) {
+      await fetchSites();
     }
     
     setEditingRecord(record);
@@ -60,15 +65,16 @@ const Squares = () => {
     
     if (record) {
       setTimeout(() => {
-        let blockId = record.blockId;
-        if (!blockId && record.blockName) {
-          const selectedBlock = blocks.find(b => b.blockName === record.blockName);
-          blockId = selectedBlock ? selectedBlock.id : null;
+        let siteId = record.siteId;
+        if (!siteId && record.siteName) {
+          const selectedSite = sites.find(s => s.siteName === record.siteName);
+          siteId = selectedSite ? selectedSite.id : null;
         }
         
         form.setFieldsValue({
           squareName: record.squareName,
-          blockId: blockId,
+          siteId: siteId,
+          siteName: record.siteName,
           description: record.description
         });
       }, 100);
@@ -85,17 +91,23 @@ const Squares = () => {
 
   const handleOk = () => {
     form.validateFields().then(async values => {
-      const enrichedValues = { ...values };
-      if (values.blockId) {
-        const selectedBlock = blocks.find(b => b.id === values.blockId);
-        if (selectedBlock) {
-          enrichedValues.blockName = selectedBlock.blockName;
+      const requestBody = {
+        squareName: values.squareName,
+        siteId: values.siteId,
+        description: values.description || null
+      };
+
+      // siteName'i ekle
+      if (values.siteId) {
+        const selectedSite = sites.find(s => s.id === values.siteId);
+        if (selectedSite) {
+          requestBody.siteName = selectedSite.siteName;
         }
       }
 
       if (editingRecord) {
         try {
-          await axios.put(`${config.apiUrl}/squares/${editingRecord.id}`, enrichedValues);
+          await axios.put(`${config.apiUrl}/squares/${editingRecord.id}`, requestBody);
           toast.success('Ada başarıyla güncellendi!');
           fetchSquares();
         } catch (error) {
@@ -103,7 +115,7 @@ const Squares = () => {
         }
       } else {
         try {
-          await axios.post(`${config.apiUrl}/squares`, enrichedValues);
+          await axios.post(`${config.apiUrl}/squares`, requestBody);
           toast.success('Ada başarıyla oluşturuldu!');
           fetchSquares();
         } catch (error) {
@@ -138,10 +150,10 @@ const Squares = () => {
       sorter: (a, b) => (a.squareName || '').localeCompare(b.squareName || '') 
     },
     { 
-      title: 'Blok Adı', 
-      dataIndex: 'blockName', 
-      key: 'blockName', 
-      sorter: (a, b) => (a.blockName || '').localeCompare(b.blockName || '') 
+      title: 'Site Adı',
+      dataIndex: 'siteName',
+      key: 'siteName',
+      sorter: (a, b) => (a.siteName || '').localeCompare(b.siteName || '')
     },
     { 
       title: 'Açıklama', 
@@ -197,7 +209,7 @@ const Squares = () => {
           style={{ width: 240 }}
         />
       </div>
-      <Table columns={columns} dataSource={filteredData} rowKey="key" loading={loading} />
+      <Table columns={columns} dataSource={filteredData} rowKey="key" loading={loading} scroll={{ x: 'max-content' }} />
       <Modal
         title={editingRecord ? 'Ada Düzenle' : 'Yeni Ada Ekle'}
         visible={isModalVisible}
@@ -209,22 +221,22 @@ const Squares = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item 
-            name="blockId" 
-            label="Blok"
+            name="siteId"
+            label="Site"
             rules={[
-              { required: true, message: 'Blok seçimi zorunludur!' }
+              { required: true, message: 'Site seçimi zorunludur!' }
             ]}
           >
             <Select
-              placeholder="Blok seçiniz"
+              placeholder="Site seçiniz"
               showSearch
               filterOption={(input, option) =>
                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
             >
-              {blocks.map(block => (
-                <Select.Option key={block.id} value={block.id}>
-                  {block.blockName}
+              {sites.map(site => (
+                <Select.Option key={site.id} value={site.id}>
+                  {site.siteName}
                 </Select.Option>
               ))}
             </Select>
@@ -252,4 +264,3 @@ const Squares = () => {
 };
 
 export default Squares;
-

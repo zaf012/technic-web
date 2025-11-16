@@ -197,7 +197,7 @@ const Projects = () => {
           style={{ width: 240 }}
         />
       </div>
-      <Table columns={columns} dataSource={filteredData} rowKey="key" loading={loading} />
+      <Table columns={columns} dataSource={filteredData} rowKey="key" loading={loading} scroll={{ x: 'max-content' }}/>
       <Modal
         title={editingRecord ? 'Proje Düzenle' : 'Yeni Proje Ekle'}
         visible={isModalVisible}

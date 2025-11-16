@@ -71,7 +71,7 @@ const Systems = () => {
           ...values
         };
         try {
-          await axios.put(`${config.apiUrl}/system-info/systems/${editingRecord.id}`, updateData);
+          await axios.put(`${config.apiUrl}/system-info/update-system/${editingRecord.id}`, updateData);
           toast.success('Sistem başarıyla güncellendi!');
           fetchSystems();
         } catch (error) {
@@ -80,7 +80,7 @@ const Systems = () => {
       } else {
         // Ekleme işlemi (POST)
         try {
-          await axios.post(`${config.apiUrl}/system-info/systems`, values);
+          await axios.post(`${config.apiUrl}/system-info/system`, values);
           toast.success('Sistem başarıyla oluşturuldu!');
           fetchSystems();
         } catch (error) {
@@ -169,37 +169,7 @@ console.log('data', data, 'filteredData', filteredData);
       key: 'description',
       render: (description) => description || '-',
       sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
-      width: 150
-    },
-    { 
-      title: 'Oluşturan', 
-      dataIndex: 'createdBy', 
-      key: 'createdBy',
-      render: (createdBy) => createdBy || '-',
-      sorter: (a, b) => (a.createdBy || '').localeCompare(b.createdBy || ''),
-      width: 120
-    },
-    { 
-      title: 'Oluşturulma Tarihi', 
-      dataIndex: 'createdDate', 
-      key: 'createdDate',
-      sorter: (a, b) => (a.createdDate || '').localeCompare(b.createdDate || ''),
-      width: 150
-    },
-    { 
-      title: 'Güncelleyen', 
-      dataIndex: 'updatedBy', 
-      key: 'updatedBy',
-      render: (updatedBy) => updatedBy || '-',
-      sorter: (a, b) => (a.updatedBy || '').localeCompare(b.updatedBy || ''),
-      width: 120
-    },
-    { 
-      title: 'Güncellenme Tarihi', 
-      dataIndex: 'updatedDate', 
-      key: 'updatedDate',
-      sorter: (a, b) => (a.updatedDate || '').localeCompare(b.updatedDate || ''),
-      width: 150
+      width: 400
     },
     {
       title: 'İşlemler',
@@ -245,7 +215,7 @@ console.log('data', data, 'filteredData', filteredData);
           style={{ width: 240 }}
         />
       </div>
-      <Table columns={columns} dataSource={filteredData} rowKey="id" loading={loading} scroll={{ x: 2000 }} />
+      <Table columns={columns} dataSource={filteredData} rowKey="id" loading={loading} scroll={{ x: 'max-content' }}/>
       <Modal
         title={editingRecord ? 'Sistem Düzenle' : 'Yeni Sistem Ekle'}
         visible={isModalVisible}

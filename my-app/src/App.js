@@ -12,6 +12,8 @@ import Sites from './pages/Sites';
 import Blocks from './pages/Blocks';
 import Squares from './pages/Squares';
 import Systems from './pages/Systems';
+import InventoryCategory from './pages/InventoryCategory';
+import SiteDeviceInventory from './pages/SiteDeviceInventory';
 
 function App() {
   return (
@@ -30,10 +32,12 @@ function App() {
           <Route path="/blocks" element={<Blocks />} />
           <Route path="/squares" element={<Squares />} />
           <Route path="/sistemler" element={<Systems />} />
+          <Route path="/urun-envanter" element={<InventoryCategory />} />
+          <Route path="/site-cihaz-envanteri" element={<SiteDeviceInventory />} />
         </Routes>
       </AppLayout>
     </Router>
   );
 }
 
-export default App; 
+export default App;

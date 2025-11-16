@@ -97,18 +97,6 @@ const UserTypes = () => {
       key: 'userTypeName', 
       sorter: (a, b) => (a.userTypeName || '').localeCompare(b.userTypeName || '') 
     },
-    { 
-      title: 'Oluşturulma Tarihi', 
-      dataIndex: 'createdDate', 
-      key: 'createdDate',
-      sorter: (a, b) => (a.createdDate || '').localeCompare(b.createdDate || '')
-    },
-    { 
-      title: 'Oluşturan', 
-      dataIndex: 'createdBy', 
-      key: 'createdBy',
-      sorter: (a, b) => (a.createdBy || '').localeCompare(b.createdBy || '')
-    },
     {
       title: 'İşlemler',
       key: 'actions',
@@ -140,7 +128,7 @@ const UserTypes = () => {
           style={{ width: 240 }}
         />
       </div>
-      <Table columns={columns} dataSource={filteredData} rowKey="key" loading={loading} />
+      <Table columns={columns} dataSource={filteredData} rowKey="key" loading={loading} scroll={{ x: 'max-content' }} />
       <Modal
         title={editingRecord ? 'Kullanıcı Tipi Düzenle' : 'Yeni Kullanıcı Tipi Ekle'}
         visible={isModalVisible}
