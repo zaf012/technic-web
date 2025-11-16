@@ -120,6 +120,10 @@ const CariHesaplar = () => {
             form.setFieldsValue(record);
         } else {
             form.resetFields();
+            form.setFieldsValue({
+                phoneCountryCode: '+90',
+                gsmCountryCode: '+90'
+            });
         }
     };
 
@@ -286,6 +290,12 @@ const CariHesaplar = () => {
             dataIndex: 'taxNumber',
             key: 'taxNumber',
             sorter: (a, b) => (a.taxNumber || '').localeCompare(b.taxNumber || '')
+        },
+        {
+            title: 'Vergi Dairesi',
+            dataIndex: 'taxOffice',
+            key: 'taxOffice',
+            sorter: (a, b) => (a.taxOffice || '').localeCompare(b.taxOffice || '')
         },
         {
             title: 'TC Kimlik No',
@@ -468,17 +478,14 @@ const CariHesaplar = () => {
                     <Form.Item name="taxNumber" label="Vergi Numarası">
                         <Input/>
                     </Form.Item>
+                    <Form.Item name="taxOffice" label="Vergi Dairesi">
+                        <Input/>
+                    </Form.Item>
                     <Form.Item name="tcIdentityNo" label="TC Kimlik No">
                         <Input/>
                     </Form.Item>
                     <Form.Item name="bankAddress" label="Banka Adresi">
                         <Input/>
-                    </Form.Item>
-                    <Form.Item name="riskLimit" label="Risk Limiti">
-                        <Input type="number"/>
-                    </Form.Item>
-                    <Form.Item name="riskLimitExplanation" label="Risk Limit Açıklaması">
-                        <Input.TextArea rows={2}/>
                     </Form.Item>
                     <Form.Item name="userStatus" label="Kullanıcı Durumu">
                         <Radio.Group>
