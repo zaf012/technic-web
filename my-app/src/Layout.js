@@ -14,7 +14,7 @@ const userMenu = (
 
 const AppLayout = ({ children }) => (
   <Layout style={{ minHeight: '100vh' }}>
-    <Sider width={220} style={{ background: '#fff' }}>
+    <Sider width={300} style={{ background: '#fff' }}>
       <div style={{ height: 64, margin: 16, textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>
         ataylar
       </div>
@@ -36,4 +36,4 @@ const AppLayout = ({ children }) => (
   </Layout>
 );
 
-export default AppLayout; 
+export default AppLayout;

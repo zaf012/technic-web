@@ -83,10 +83,18 @@ const InventoryCategory = () => {
 
     const handleOk = () => {
         form.validateFields().then(async values => {
-            // Ana kategori ise mainCategoryId'yi null yap
+            // Üst kategori seçilmişse, mainCategoryName'i bul ve ekle
+            let mainCategoryName = null;
+            if (!values.isMainCategory && values.mainCategoryId) {
+                const selectedMainCategory = mainCategories.find(cat => cat.id === values.mainCategoryId);
+                mainCategoryName = selectedMainCategory ? selectedMainCategory.categoryName : null;
+            }
+
+            // Ana kategori ise mainCategoryId ve mainCategoryName'i null yap
             const requestData = {
                 ...values,
-                mainCategoryId: values.isMainCategory ? null : values.mainCategoryId
+                mainCategoryId: values.isMainCategory ? null : values.mainCategoryId,
+                mainCategoryName: values.isMainCategory ? null : mainCategoryName
             };
 
             if (editingRecord) {

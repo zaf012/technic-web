@@ -12,6 +12,7 @@ const SiteDeviceInventory = () => {
     const [blocks, setBlocks] = useState([]);
     const [systems, setSystems] = useState([]);
     const [inventoryCategories, setInventoryCategories] = useState([]);
+    const [products, setProducts] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
     const [form] = Form.useForm();
@@ -19,6 +20,7 @@ const SiteDeviceInventory = () => {
     const [loading, setLoading] = useState(false);
     const [selectedSiteId, setSelectedSiteId] = useState(null);
     const [selectedSquareId, setSelectedSquareId] = useState(null);
+    const [selectedCategoryId, setSelectedCategoryId] = useState(null);
 
     useEffect(() => {
         fetchDevices();
@@ -121,6 +123,33 @@ const SiteDeviceInventory = () => {
         }
     };
 
+    const fetchProductsByCategory = async (categoryId) => {
+        try {
+            // Seçilen kategorinin alt kategorilerini filtrele
+            // mainCategoryId'si seçilen kategoriyi işaret eden kategoriler bu kategorinin ürünleridir
+            const filteredProducts = inventoryCategories.filter(cat => cat.mainCategoryId === categoryId);
+
+            if (filteredProducts.length > 0) {
+                setProducts(filteredProducts);
+            } else {
+                // Eğer alt kategorisi yoksa, bu zaten en alt seviye kategoridir
+                // Bu durumda "Gösterilecek veri bulunamadı" mesajı için boş liste döndür
+                setProducts([]);
+
+                // Alternatif: Eğer seçilen kategori zaten en alt seviyeyse, kendisini göster
+                // const selectedCategory = inventoryCategories.find(cat => cat.id === categoryId);
+                // if (selectedCategory && !selectedCategory.mainCategoryId) {
+                //     setProducts([selectedCategory]);
+                // } else {
+                //     setProducts([]);
+                // }
+            }
+        } catch (error) {
+            console.log(error);
+            setProducts([]);
+        }
+    };
+
     const generateQRCode = () => {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let result = '';
@@ -143,13 +172,18 @@ const SiteDeviceInventory = () => {
                 location: record.location,
                 systemId: record.systemId,
                 inventoryCategoryId: record.inventoryCategoryId,
+                productId: record.productId,
                 qrCode: record.qrCode,
                 isActive: record.isActive
             });
             setSelectedSiteId(record.siteId);
             setSelectedSquareId(record.squareId);
+            setSelectedCategoryId(record.inventoryCategoryId);
             fetchSquaresBySite(record.siteId);
             fetchBlocksBySquare(record.squareId);
+            if (record.inventoryCategoryId) {
+                fetchProductsByCategory(record.inventoryCategoryId);
+            }
         } else {
             form.resetFields();
             form.setFieldsValue({
@@ -158,8 +192,10 @@ const SiteDeviceInventory = () => {
             });
             setSelectedSiteId(null);
             setSelectedSquareId(null);
+            setSelectedCategoryId(null);
             setSquares([]);
             setBlocks([]);
+            setProducts([]);
         }
     };
 
@@ -169,8 +205,10 @@ const SiteDeviceInventory = () => {
         form.resetFields();
         setSelectedSiteId(null);
         setSelectedSquareId(null);
+        setSelectedCategoryId(null);
         setSquares([]);
         setBlocks([]);
+        setProducts([]);
     };
 
     const handleSiteChange = (siteId) => {
@@ -195,6 +233,16 @@ const SiteDeviceInventory = () => {
         }
     };
 
+    const handleCategoryChange = (categoryId) => {
+        setSelectedCategoryId(categoryId);
+        form.setFieldsValue({ productId: undefined });
+        if (categoryId) {
+            fetchProductsByCategory(categoryId);
+        } else {
+            setProducts([]);
+        }
+    };
+
     const handleOk = () => {
         form.validateFields().then(async values => {
             // Site, Square, Block için name değerlerini bul
@@ -203,6 +251,7 @@ const SiteDeviceInventory = () => {
             const selectedBlock = blocks.find(b => b.id === values.blockId);
             const selectedSystem = systems.find(s => s.id === values.systemId);
             const selectedCategory = inventoryCategories.find(c => c.id === values.inventoryCategoryId);
+            const selectedProduct = products.find(p => p.id === values.productId);
 
             const requestData = {
                 ...values,
@@ -211,7 +260,7 @@ const SiteDeviceInventory = () => {
                 blockName: selectedBlock?.blockName || '',
                 systemName: selectedSystem?.systemName || '',
                 inventoryCategoryName: selectedCategory?.categoryName || '',
-                productName: selectedCategory?.productName || ''
+                productName: selectedProduct?.productName || ''
             };
 
             if (editingRecord) {
@@ -297,13 +346,6 @@ const SiteDeviceInventory = () => {
             render: (inventoryCategoryName) => inventoryCategoryName || '-',
             sorter: (a, b) => (a.inventoryCategoryName || '').localeCompare(b.inventoryCategoryName || ''),
             width: 300
-        },
-        {
-            title: 'Ürün (cihaz) Seçiniz',
-            dataIndex: 'productName',
-            key: 'productName2',
-            render: (productName) => productName || '-',
-            width: 150
         },
         {
             title: 'Site',
@@ -527,6 +569,8 @@ const SiteDeviceInventory = () => {
                         <Select
                             placeholder="Ürün Kategorisi Seçiniz ..."
                             showSearch
+                            allowClear
+                            onChange={handleCategoryChange}
                             filterOption={(input, option) =>
                                 (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
                             }
@@ -534,6 +578,28 @@ const SiteDeviceInventory = () => {
                             {inventoryCategories.map(cat => (
                                 <Select.Option key={cat.id} value={cat.id}>
                                     {cat.categoryName}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="productId"
+                        label="Ürün (cihaz) Seçiniz"
+                        rules={[{ required: true, message: 'Ürün seçimi zorunludur!' }]}
+                    >
+                        <Select
+                            placeholder="Önce üstten 'Envanter Kategorisi' Seçiniz ..."
+                            showSearch
+                            allowClear
+                            disabled={!selectedCategoryId}
+                            filterOption={(input, option) =>
+                                (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+                            }
+                        >
+                            {products.map(product => (
+                                <Select.Option key={product.id} value={product.id}>
+                                    {product.productName}
                                 </Select.Option>
                             ))}
                         </Select>
