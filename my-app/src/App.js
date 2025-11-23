@@ -12,8 +12,9 @@ import Sites from './pages/Sites';
 import Blocks from './pages/Blocks';
 import Squares from './pages/Squares';
 import Systems from './pages/Systems';
-import InventoryCategory from './pages/InventoryCategory';
-import SiteDeviceInventory from './pages/SiteDeviceInventory';
+import ProductInventoryCategories from "./pages/ProductInventoryCategories";
+import ProductInventoryDetail from "./pages/ProductInventoryDetail";
+import SiteProductInventoryDetail from "./pages/SiteProductInventoryDetail";
 
 function App() {
   return (
@@ -32,8 +33,9 @@ function App() {
           <Route path="/blocks" element={<Blocks />} />
           <Route path="/squares" element={<Squares />} />
           <Route path="/sistemler" element={<Systems />} />
-          <Route path="/urun-envanter" element={<InventoryCategory />} />
-          <Route path="/site-cihaz-envanteri" element={<SiteDeviceInventory />} />
+          <Route path="/urun-envanter-kategoriler" element={<ProductInventoryCategories />} />
+          <Route path="/urun-envanter-listesi" element={<ProductInventoryDetail />} />
+          <Route path="/site-cihaz-envanteri" element={<SiteProductInventoryDetail />} />
         </Routes>
       </AppLayout>
     </Router>

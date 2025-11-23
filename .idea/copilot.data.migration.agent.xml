@@ -1,36 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AgentMigrationStateService">
+    <option name="migrationStatus" value="IN_PROGRESS" />
     <option name="pendingSessionIds">
+      <option value="18d25718-1f42-48c1-97be-d131536dfe51" />
+      <option value="24051833-c1b6-4740-9c5d-92294d228382" />
+      <option value="54f7ca20-29e9-4870-8ad3-810921486a53" />
+      <option value="6c99657d-85c1-45c5-8ed5-fb18a5ad41c2" />
+      <option value="890fef14-561c-4e1c-9dbd-3a7272034638" />
+      <option value="950829f2-5940-4921-8255-88b7c1dc48c3" />
       <option value="97c237ef-7200-4fc5-ab50-f0234c892ef5" />
+      <option value="9926b374-bf1b-4d54-a7e8-d8ac5da3d91e" />
+      <option value="a5eb9e86-672d-40d3-a103-b45774e7b8e0" />
+      <option value="b065c535-011a-414f-93ec-410ba57eb5fd" />
+      <option value="c71583b9-e0df-476f-af97-463cfa200e2f" />
+      <option value="f40d4f02-1cca-42b5-b380-7853a150d60d" />
     </option>
     <option name="pendingTurns">
       <map>
+        <entry key="54f7ca20-29e9-4870-8ad3-810921486a53">
+          <value>
+            <set>
+              <option value="444fe9bb-263b-42b3-b55d-b44f5591179e" />
+            </set>
+          </value>
+        </entry>
+        <entry key="6c99657d-85c1-45c5-8ed5-fb18a5ad41c2">
+          <value>
+            <set>
+              <option value="6e5f65d8-70b1-43a0-b156-f24c122d53f9" />
+              <option value="f150990b-ee72-49bc-a1cd-9746981b9922" />
+            </set>
+          </value>
+        </entry>
+        <entry key="950829f2-5940-4921-8255-88b7c1dc48c3">
+          <value>
+            <set>
+              <option value="889a987f-5f8d-4f32-abb8-363270343fa4" />
+              <option value="858c105c-948d-424a-9262-cee027e9ab9e" />
+              <option value="05f3ac55-0038-4470-b97c-9ece40553d0c" />
+            </set>
+          </value>
+        </entry>
         <entry key="97c237ef-7200-4fc5-ab50-f0234c892ef5">
           <value>
             <set>
-              <option value="d0498bdf-9e2f-4799-9947-a34dbd3b2917" />
-              <option value="e526de97-1fff-4532-873b-9bdb8b4db6c7" />
-              <option value="dd70919f-3540-4199-92ff-dbcc3f8863ed" />
               <option value="0ff8f3f9-aa6a-4542-9497-730ad0dc5e63" />
+              <option value="d0498bdf-9e2f-4799-9947-a34dbd3b2917" />
+              <option value="dd70919f-3540-4199-92ff-dbcc3f8863ed" />
+              <option value="e526de97-1fff-4532-873b-9bdb8b4db6c7" />
+            </set>
+          </value>
+        </entry>
+        <entry key="b065c535-011a-414f-93ec-410ba57eb5fd">
+          <value>
+            <set>
+              <option value="03820f99-2f85-4867-b24a-a94a9f4dfbb6" />
+              <option value="5e288f05-8fd5-461f-b981-db71600b0457" />
+              <option value="8f5248ba-6c23-4dff-b747-4e90b42b17d5" />
+              <option value="c6f2e2cb-3bd1-49f8-be8c-eb146e0936b6" />
+            </set>
+          </value>
+        </entry>
+        <entry key="f40d4f02-1cca-42b5-b380-7853a150d60d">
+          <value>
+            <set>
+              <option value="41ccc94c-0f2f-4580-8569-0c2996b030d1" />
+              <option value="89c43867-5eec-44ea-bf92-a3583172ca39" />
+              <option value="713cde2b-6e04-4d79-bdf8-994ceae9d015" />
             </set>
           </value>
         </entry>
       </map>
     </option>
     <pendingWorkingSetItems>
-      <entry key="97c237ef-7200-4fc5-ab50-f0234c892ef5">
+      <entry key="6c99657d-85c1-45c5-8ed5-fb18a5ad41c2" />
+      <entry key="950829f2-5940-4921-8255-88b7c1dc48c3">
         <set>
-          <option value="file://$PROJECT_DIR$/my-app/.env.local" />
-          <option value="file://$PROJECT_DIR$/my-app/.env.production" />
-          <option value="file://$PROJECT_DIR$/my-app/src/pages/Sites.js" />
-          <option value="file://$PROJECT_DIR$/my-app/src/pages/Firms.js" />
-          <option value="file://$PROJECT_DIR$/my-app/src/pages/UserTypes.js" />
-          <option value="file://$PROJECT_DIR$/my-app/src/pages/Systems.js" />
-          <option value="file://$PROJECT_DIR$/my-app/src/pages/CariHesaplar.js" />
-          <option value="file://$PROJECT_DIR$/my-app/src/pages/Projects.js" />
-          <option value="file://$PROJECT_DIR$/my-app/package.json" />
-          <option value="file://$PROJECT_DIR$/.gitignore" />
+          <option value="file://$PROJECT_DIR$/my-app/src/services/SiteProductInventoryService.js" />
+          <option value="file://$PROJECT_DIR$/my-app/src/pages/SiteProductInventoryDetail.js" />
+          <option value="file://$PROJECT_DIR$/my-app/src/App.js" />
+          <option value="file://$PROJECT_DIR$/my-app/src/components/Sidebar/Sidebar.js" />
+          <option value="file://$PROJECT_DIR$/SITE_PRODUCT_INVENTORY_DETAIL_README.md" />
+        </set>
+      </entry>
+      <entry key="97c237ef-7200-4fc5-ab50-f0234c892ef5" />
+      <entry key="a5eb9e86-672d-40d3-a103-b45774e7b8e0" />
+      <entry key="b065c535-011a-414f-93ec-410ba57eb5fd" />
+      <entry key="f40d4f02-1cca-42b5-b380-7853a150d60d">
+        <set>
+          <option value="file://$PROJECT_DIR$/my-app/src/pages/ProductInventoryDetail.js" />
+          <option value="file://$PROJECT_DIR$/my-app/src/App.js" />
+          <option value="file://$PROJECT_DIR$/my-app/src/components/Sidebar/Sidebar.js" />
+          <option value="file://$PROJECT_DIR$/my-app/src/services/productInventoryService.js" />
         </set>
       </entry>
     </pendingWorkingSetItems>

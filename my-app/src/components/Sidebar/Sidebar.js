@@ -13,9 +13,7 @@ import {
     ProjectOutlined,
     ApartmentOutlined,
     AppstoreOutlined,
-    SettingOutlined,
-    DatabaseOutlined,
-    QrcodeOutlined
+    SettingOutlined
 } from '@ant-design/icons';
 import {Link} from 'react-router-dom';
 
@@ -60,10 +58,13 @@ const Sidebar = () => (
                 <Menu.Item key="/sistemler" icon={<SettingOutlined/>}>
                     <Link to="/sistemler">Sistemler</Link>
                 </Menu.Item>
-                <Menu.Item key="/urun-envanter" icon={<DatabaseOutlined/>}>
-                    <Link to="/urun-envanter">Ürün Envanter Listesi</Link>
+                <Menu.Item key="/urun-envanter-kategoriler" icon={<AppstoreOutlined/>}>
+                    <Link to="/urun-envanter-kategoriler">Ürün Envanter Kategorileri</Link>
                 </Menu.Item>
-                <Menu.Item key="/site-cihaz-envanteri" icon={<QrcodeOutlined/>}>
+                <Menu.Item key="/urun-envanter-listesi" icon={<TagsOutlined/>}>
+                    <Link to="/urun-envanter-listesi">Ürün Envanter Listesi</Link>
+                </Menu.Item>
+                <Menu.Item key="/site-cihaz-envanteri" icon={<ApartmentOutlined/>}>
                     <Link to="/site-cihaz-envanteri">Site Cihaz Envanteri</Link>
                 </Menu.Item>
             </Menu.SubMenu>

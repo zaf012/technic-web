@@ -4,7 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8e7332da-ba86-47b5-97e2-5bae6fcef978" name="Changes" comment="feat: Add environment configuration for local and production&#10;- Add config.js for centralized API URL management&#10;- Update all API calls to use config.apiUrl&#10;- Add .env.local and .env.prod files&#10;- Add cross-env for build scripts&#10;- Update package.json with build:local and build:prod scripts" />
+    <list default="true" id="8e7332da-ba86-47b5-97e2-5bae6fcef978" name="Changes" comment="feat: Add environment configuration for local and production&#10;- Add config.js for centralized API URL management&#10;- Update all API calls to use config.apiUrl&#10;- Add .env.local and .env.prod files&#10;- Add cross-env for build scripts&#10;- Update package.json with build:local and build:prod scripts">
+      <change afterPath="$PROJECT_DIR$/SITE_PRODUCT_INVENTORY_DETAIL_README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/my-app/src/pages/ProductInventoryCategories.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/my-app/src/pages/ProductInventoryDetail.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/my-app/src/pages/SiteProductInventoryDetail.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/my-app/src/services/ProductInventoryService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/my-app/src/services/SiteProductInventoryService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/my-app/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/my-app/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/my-app/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/my-app/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/my-app/src/components/Sidebar/Sidebar.js" beforeDir="false" afterPath="$PROJECT_DIR$/my-app/src/components/Sidebar/Sidebar.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/my-app/src/pages/InventoryCategory.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/my-app/src/pages/SiteDeviceInventory.js" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,18 +34,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "zaf012"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;zaf012&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/zaf012/technic-web.git",
-    "accountId": "3d1621c0-9c5d-47aa-a4e3-2279dc8e3c57"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/zaf012/technic-web.git&quot;,
+    &quot;accountId&quot;: &quot;3d1621c0-9c5d-47aa-a4e3-2279dc8e3c57&quot;
   }
-}]]></component>
+}</component>
   <component name="PackageJsonUpdateNotifier">
     <dismissed value="$PROJECT_DIR$/my-app/package.json" />
   </component>
@@ -43,32 +57,53 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/akglzfr/Projects/technic-web/my-app",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/akglzfr/Projects/technic-web&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.start.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.github.copilot.settings.chat.ChatConfigurable&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Applications/WebStorm.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/my-app" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="start" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/my-app/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="start" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.start" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-WS-252.26830.93" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-WS-252.27397.92" />
       </set>
     </attachedChunks>
   </component>
@@ -84,6 +119,14 @@
       <workItem from="1760884938533" duration="648000" />
       <workItem from="1760899685078" duration="597000" />
       <workItem from="1760937820863" duration="5960000" />
+      <workItem from="1763646285793" duration="386000" />
+      <workItem from="1763646944787" duration="598000" />
+      <workItem from="1763654228870" duration="80000" />
+      <workItem from="1763654318522" duration="874000" />
+      <workItem from="1763655305148" duration="1158000" />
+      <workItem from="1763734054069" duration="2073000" />
+      <workItem from="1763818328620" duration="5048000" />
+      <workItem from="1763902842621" duration="4679000" />
     </task>
     <task id="LOCAL-00001" summary="feat: Add environment configuration for local and production&#10;- Add config.js for centralized API URL management&#10;- Update all API calls to use config.apiUrl&#10;- Add .env.local and .env.prod files&#10;- Add cross-env for build scripts&#10;- Update package.json with build:local and build:prod scripts">
       <option name="closed" value="true" />
@@ -102,5 +145,13 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: Add environment configuration for local and production&#10;- Add config.js for centralized API URL management&#10;- Update all API calls to use config.apiUrl&#10;- Add .env.local and .env.prod files&#10;- Add cross-env for build scripts&#10;- Update package.json with build:local and build:prod scripts" />
     <option name="LAST_COMMIT_MESSAGE" value="feat: Add environment configuration for local and production&#10;- Add config.js for centralized API URL management&#10;- Update all API calls to use config.apiUrl&#10;- Add .env.local and .env.prod files&#10;- Add cross-env for build scripts&#10;- Update package.json with build:local and build:prod scripts" />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
   </component>
 </project>
