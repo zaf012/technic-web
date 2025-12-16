@@ -67,6 +67,9 @@ const Sidebar = () => (
                 <Menu.Item key="/site-cihaz-envanteri" icon={<ApartmentOutlined/>}>
                     <Link to="/site-cihaz-envanteri">Site Cihaz Envanteri</Link>
                 </Menu.Item>
+                <Menu.Item key="/bakim-pdf-yonetimi" icon={<FileTextOutlined/>}>
+                    <Link to="/bakim-pdf-yonetimi">Periyodik Bakım PDF Yönetimi</Link>
+                </Menu.Item>
             </Menu.SubMenu>
         </Menu.SubMenu>
 

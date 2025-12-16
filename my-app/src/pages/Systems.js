@@ -218,7 +218,7 @@ console.log('data', data, 'filteredData', filteredData);
       <Table columns={columns} dataSource={filteredData} rowKey="id" loading={loading} scroll={{ x: 'max-content' }}/>
       <Modal
         title={editingRecord ? 'Sistem Düzenle' : 'Yeni Sistem Ekle'}
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
         okText="Kaydet"
@@ -240,10 +240,35 @@ console.log('data', data, 'filteredData', filteredData);
             name="systemOrderNo" 
             label="Sistem Sıra No"
             rules={[
-              { required: true, message: 'Sistem sıra no zorunludur!' }
+              { required: true, message: 'Sistem sıra no zorunludur!' },
+              {
+                type: 'number',
+                message: 'Sadece sayı girebilirsiniz!'
+              },
+              {
+                validator: (_, value) => {
+                  if (value === null || value === undefined) {
+                    return Promise.reject('Sistem sıra no zorunludur!');
+                  }
+                  if (!Number.isInteger(value)) {
+                    return Promise.reject('Sadece tam sayı girebilirsiniz!');
+                  }
+                  if (value < 0) {
+                    return Promise.reject('Negatif sayı giremezsiniz!');
+                  }
+                  return Promise.resolve();
+                }
+              }
             ]}
           >
-            <InputNumber style={{ width: '100%' }} placeholder="Sıra numarası giriniz" min={0} />
+            <InputNumber
+              style={{ width: '100%' }}
+              placeholder="Sıra numarası giriniz"
+              min={0}
+              precision={0}
+              step={1}
+              controls={true}
+            />
           </Form.Item>
           <Form.Item 
             name="isActive" 
@@ -285,10 +310,35 @@ console.log('data', data, 'filteredData', filteredData);
             name="controlPointOrder" 
             label="Kontrol Noktası Sırası"
             rules={[
-              { required: true, message: 'Kontrol noktası sırası zorunludur!' }
+              { required: true, message: 'Kontrol noktası sırası zorunludur!' },
+              {
+                type: 'number',
+                message: 'Sadece sayı girebilirsiniz!'
+              },
+              {
+                validator: (_, value) => {
+                  if (value === null || value === undefined) {
+                    return Promise.reject('Kontrol noktası sırası zorunludur!');
+                  }
+                  if (!Number.isInteger(value)) {
+                    return Promise.reject('Sadece tam sayı girebilirsiniz!');
+                  }
+                  if (value < 0) {
+                    return Promise.reject('Negatif sayı giremezsiniz!');
+                  }
+                  return Promise.resolve();
+                }
+              }
             ]}
           >
-            <InputNumber style={{ width: '100%' }} placeholder="Kontrol noktası sırası" min={0} />
+            <InputNumber
+              style={{ width: '100%' }}
+              placeholder="Kontrol noktası sırası"
+              min={0}
+              precision={0}
+              step={1}
+              controls={true}
+            />
           </Form.Item>
           <Form.Item 
             name="controlPointIsActive" 

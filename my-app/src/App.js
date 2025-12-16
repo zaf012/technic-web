@@ -15,6 +15,7 @@ import Systems from './pages/Systems';
 import ProductInventoryCategories from "./pages/ProductInventoryCategories";
 import ProductInventoryDetail from "./pages/ProductInventoryDetail";
 import SiteProductInventoryDetail from "./pages/SiteProductInventoryDetail";
+import MaintenancePdf from "./pages/MaintenancePdf";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           <Route path="/urun-envanter-kategoriler" element={<ProductInventoryCategories />} />
           <Route path="/urun-envanter-listesi" element={<ProductInventoryDetail />} />
           <Route path="/site-cihaz-envanteri" element={<SiteProductInventoryDetail />} />
+          <Route path="/bakim-pdf-yonetimi" element={<MaintenancePdf />} />
         </Routes>
       </AppLayout>
     </Router>
