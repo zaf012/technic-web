@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Table, Button, Modal, Form, Input, Space, Popconfirm, Select} from 'antd';
+import {Table, Button, Modal, Form, Input, Space, Popconfirm} from 'antd';
 import axios from 'axios';
 import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -7,7 +7,6 @@ import config from '../config';
 
 const Sites = () => {
     const [data, setData] = useState([]);
-    const [projects, setProjects] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
     const [form] = Form.useForm();
@@ -16,7 +15,6 @@ const Sites = () => {
 
     useEffect(() => {
         fetchSites();
-        fetchProjects();
     }, []);
 
     const fetchSites = async () => {
@@ -36,42 +34,16 @@ const Sites = () => {
         }
     };
 
-    const fetchProjects = async () => {
-        try {
-            const response = await axios.get(`${config.apiUrl}/projects/get-all`);
-            if (response.data && response.data.data) {
-                setProjects(response.data.data);
-            } else {
-                setProjects([]);
-            }
-        } catch (error) {
-            toast.error('Projeler alınırken hata oluştu!');
-            setProjects([]);
-        }
-    };
-
     const showModal = async (record = null) => {
-        // Eğer projects listesi boşsa, önce projeleri yükle
-        if (projects.length === 0) {
-            await fetchProjects();
-        }
 
         setEditingRecord(record);
         setIsModalVisible(true);
 
         if (record) {
-            // Kısa bir süre bekle ki projects state güncellensin
             setTimeout(() => {
-                // projectId'yi belirle - önce record'daki projectId'ye bak, yoksa projectName'den bul
-                let projectId = record.projectId;
-                if (!projectId && record.projectName) {
-                    const selectedProject = projects.find(p => p.projectName === record.projectName);
-                    projectId = selectedProject ? selectedProject.id : null;
-                }
 
                 form.setFieldsValue({
                     siteName: record.siteName,
-                    projectId: projectId,
                     description: record.description
                 });
             }, 100);
@@ -88,14 +60,7 @@ const Sites = () => {
 
     const handleOk = () => {
         form.validateFields().then(async values => {
-            // projectId için projectName ekle
             const enrichedValues = {...values};
-            if (values.projectId) {
-                const selectedProject = projects.find(p => p.id === values.projectId);
-                if (selectedProject) {
-                    enrichedValues.projectName = selectedProject.projectName;
-                }
-            }
 
             if (editingRecord) {
                 // Güncelleme işlemi (PUT)
@@ -138,12 +103,6 @@ const Sites = () => {
     });
 
     const columns = [
-        {
-            title: 'Proje Adı',
-            dataIndex: 'projectName',
-            key: 'projectName',
-            sorter: (a, b) => (a.projectName || '').localeCompare(b.projectName || '')
-        },
         {
             title: 'Site Adı',
             dataIndex: 'siteName',
@@ -221,27 +180,6 @@ const Sites = () => {
                 width={700}
             >
                 <Form form={form} layout="vertical">
-                    <Form.Item
-                        name="projectId"
-                        label="Proje"
-                        rules={[
-                            {required: true, message: 'Proje seçimi zorunludur!'}
-                        ]}
-                    >
-                        <Select
-                            placeholder="Proje seçiniz"
-                            showSearch
-                            filterOption={(input, option) =>
-                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                            }
-                        >
-                            {projects.map(project => (
-                                <Select.Option key={project.id} value={project.id}>
-                                    {project.projectName}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
                     <Form.Item
                         name="siteName"
                         label="Site Adı"

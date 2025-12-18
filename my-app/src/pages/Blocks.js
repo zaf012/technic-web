@@ -13,6 +13,7 @@ const Blocks = () => {
     const [form] = Form.useForm();
     const [searchText, setSearchText] = useState('');
     const [loading, setLoading] = useState(false);
+    const [selectedSquareSiteName, setSelectedSquareSiteName] = useState(''); // Ada'nın site adı için state
 
     useEffect(() => {
         const loadData = async () => {
@@ -92,6 +93,12 @@ const Blocks = () => {
                     squareId = selectedSquare ? selectedSquare.id : null;
                 }
 
+                // Site adını set et
+                const selectedSquare = squares.find(s => s.id === squareId);
+                if (selectedSquare) {
+                    setSelectedSquareSiteName(selectedSquare.siteName || '-');
+                }
+
                 form.setFieldsValue({
                     blockName: record.blockName,
                     squareId: squareId,
@@ -100,6 +107,7 @@ const Blocks = () => {
                 });
             }, 100);
         } else {
+            setSelectedSquareSiteName(''); // Yeni kayıt için temizle
             form.resetFields();
         }
     };
@@ -107,7 +115,18 @@ const Blocks = () => {
     const handleCancel = () => {
         setIsModalVisible(false);
         setEditingRecord(null);
+        setSelectedSquareSiteName(''); // Site adını temizle
         form.resetFields();
+    };
+
+    // Ada seçildiğinde site adını otomatik doldur
+    const handleSquareChange = (squareId) => {
+        const selectedSquare = squares.find(s => s.id === squareId);
+        if (selectedSquare) {
+            setSelectedSquareSiteName(selectedSquare.siteName || '-');
+        } else {
+            setSelectedSquareSiteName('');
+        }
     };
 
     const handleOk = () => {
@@ -246,7 +265,7 @@ const Blocks = () => {
             <Table columns={columns} dataSource={filteredData} rowKey="key" loading={loading} scroll={{ x: 'max-content' }} />
             <Modal
                 title={editingRecord ? 'Blok Düzenle' : 'Yeni Blok Ekle'}
-                visible={isModalVisible}
+                open={isModalVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
                 okText="Kaydet"
@@ -264,6 +283,7 @@ const Blocks = () => {
                         <Select
                             placeholder="Ada seçiniz"
                             showSearch
+                            onChange={handleSquareChange}
                             filterOption={(input, option) =>
                                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                             }
@@ -275,6 +295,25 @@ const Blocks = () => {
                             ))}
                         </Select>
                     </Form.Item>
+
+                    {/* Site Adı - Otomatik doldurulur, düzenlenemez */}
+                    {selectedSquareSiteName && (
+                        <Form.Item
+                            label="Site Adı"
+                        >
+                            <Input
+                                value={selectedSquareSiteName}
+                                disabled
+                                placeholder="Ada seçildiğinde otomatik dolacak"
+                                style={{
+                                    backgroundColor: '#f5f5f5',
+                                    cursor: 'not-allowed',
+                                    color: '#000'
+                                }}
+                            />
+                        </Form.Item>
+                    )}
+
                     <Form.Item
                         name="blockName"
                         label="Blok Adı"

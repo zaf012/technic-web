@@ -189,50 +189,53 @@ const ProductInventoryCategories = () => {
         const icon = levelIcons[level] || '▪';
 
         return (
-            <div key={node.id} style={{ marginBottom: '8px' }}>
+            <div key={node.id} style={{ marginBottom: '2px' }}>
                 <div style={{
-                    marginLeft: `${level * 30}px`,
-                    padding: '10px 16px',
+                    marginLeft: `${level * 15}px`,
+                    padding: '4px 8px',
                     backgroundColor: colors.bg,
-                    borderLeft: `4px solid ${colors.border}`,
-                    borderRadius: '6px',
+                    borderLeft: `2px solid ${colors.border}`,
+                    borderRadius: '3px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px',
+                    gap: '6px',
                     transition: 'all 0.3s ease',
                     cursor: 'default',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.06)'
+                    boxShadow: '0 1px 1px rgba(0,0,0,0.03)'
                 }}>
                     <span style={{
                         color: colors.border,
-                        fontSize: '16px',
-                        fontWeight: 'bold'
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        lineHeight: '1'
                     }}>
                         {icon}
                     </span>
                     <span style={{
                         color: colors.text,
-                        fontSize: '14px',
+                        fontSize: '11px',
                         fontWeight: level === 0 ? '600' : '500',
-                        flex: 1
+                        flex: 1,
+                        lineHeight: '1.3'
                     }}>
                         {node.categoryName}
                     </span>
                     {node.subCategories && node.subCategories.length > 0 && (
                         <span style={{
-                            fontSize: '11px',
+                            fontSize: '9px',
                             color: '#8c8c8c',
                             backgroundColor: 'white',
-                            padding: '2px 8px',
-                            borderRadius: '10px',
-                            fontWeight: '500'
+                            padding: '1px 4px',
+                            borderRadius: '6px',
+                            fontWeight: '500',
+                            whiteSpace: 'nowrap'
                         }}>
-                            {node.subCategories.length} alt kategori
+                            {node.subCategories.length}
                         </span>
                     )}
                 </div>
                 {node.subCategories && node.subCategories.length > 0 && (
-                    <div style={{ marginTop: '4px' }}>
+                    <div style={{ marginTop: '1px' }}>
                         {node.subCategories.map(child => renderTreeNode(child, level + 1))}
                     </div>
                 )}
@@ -381,7 +384,7 @@ const ProductInventoryCategories = () => {
                 title="Kategori Yapısı"
                 open={isTreeModalVisible}
                 onCancel={handleTreeModalClose}
-                width={1000}
+                width={1200}
                 footer={[
                     <Button key="close" type="primary" onClick={handleTreeModalClose}>
                         Kapat
@@ -391,14 +394,14 @@ const ProductInventoryCategories = () => {
                 <div style={{
                     maxHeight: '700px',
                     overflowY: 'auto',
-                    padding: '16px',
+                    padding: '8px',
                     backgroundColor: '#fafafa',
                     borderRadius: '8px'
                 }}>
                     {categoryTree.length > 0 ? (
                         <div style={{
                             backgroundColor: 'white',
-                            padding: '20px',
+                            padding: '8px',
                             borderRadius: '8px',
                             boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
                         }}>
@@ -407,7 +410,7 @@ const ProductInventoryCategories = () => {
                     ) : (
                         <div style={{
                             textAlign: 'center',
-                            padding: '60px 20px',
+                            padding: '30px 15px',
                             color: '#999',
                             backgroundColor: 'white',
                             borderRadius: '8px'
@@ -445,7 +448,8 @@ const ProductInventoryCategories = () => {
                         <TreeSelect
                             showSearch
                             style={{ width: '100%' }}
-                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                            popupMatchSelectWidth={false}
+                            popupStyle={{ maxHeight: 400, overflow: 'auto' }}
                             placeholder="Kategori Seçin (Boş bırakılırsa ana kategori olur)"
                             allowClear
                             treeDefaultExpandAll

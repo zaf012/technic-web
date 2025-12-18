@@ -160,7 +160,6 @@ const SiteProductInventoryDetail = () => {
                 siteId: record.siteId,
                 squareId: record.squareId,
                 blockId: record.blockId,
-                doorNumber: record.doorNumber,
                 floorNumber: record.floorNumber,
                 location: record.location,
                 systemId: record.systemId,
@@ -308,14 +307,6 @@ const SiteProductInventoryDetail = () => {
             dataIndex: 'blockName',
             key: 'blockName',
             width: 100,
-        },
-        {
-            title: 'Daire No',
-            dataIndex: 'doorNumber',
-            key: 'doorNumber',
-            width: 80,
-            align: 'center',
-            render: (doorNumber) => doorNumber || '-',
         },
         {
             title: 'Lokasyon',
@@ -481,19 +472,6 @@ const SiteProductInventoryDetail = () => {
                                     {block.blockName}
                                 </Option>
                             ))}
-                        </Select>
-                    </Form.Item>
-
-                    <Form.Item
-                        name="doorNumber"
-                        label="Daire (Opsiyonel)"
-                    >
-                        <Select
-                            placeholder="Seçiniz..."
-                            showSearch
-                            allowClear
-                        >
-                            {/* Daire numaraları için dinamik liste oluşturulabilir */}
                         </Select>
                     </Form.Item>
 

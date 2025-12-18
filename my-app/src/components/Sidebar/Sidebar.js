@@ -10,7 +10,6 @@ import {
     IdcardOutlined,
     SafetyOutlined,
     BankOutlined,
-    ProjectOutlined,
     ApartmentOutlined,
     AppstoreOutlined,
     SettingOutlined
@@ -36,12 +35,6 @@ const Sidebar = () => (
             </Menu.Item>
             <Menu.Item key="/kullanici-tipleri" icon={<SafetyOutlined/>}>
                 <Link to="/kullanici-tipleri">Kullanıcı Tipleri</Link>
-            </Menu.Item>
-            <Menu.Item key="/firmalar" icon={<BankOutlined/>}>
-                <Link to="/firmalar">Firmalar</Link>
-            </Menu.Item>
-            <Menu.Item key="/projeler" icon={<ProjectOutlined/>}>
-                <Link to="/projeler">Projeler</Link>
             </Menu.Item>
             <Menu.SubMenu key="sub2" icon={<HomeOutlined/>} title="Site Yönetimi">
                 <Menu.Item key="/sites" icon={<BankOutlined/>}>

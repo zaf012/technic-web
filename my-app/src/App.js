@@ -6,8 +6,6 @@ import CariGrupTanimlari from './pages/CariGrupTanimlari';
 import Teklifler from './pages/Teklifler';
 import Personeller from './pages/Personeller';
 import UserTypes from './pages/UserTypes';
-import Firms from './pages/Firms';
-import Projects from './pages/Projects';
 import Sites from './pages/Sites';
 import Blocks from './pages/Blocks';
 import Squares from './pages/Squares';
@@ -27,8 +25,6 @@ function App() {
           <Route path="/teklifler" element={<Teklifler />} />
           <Route path="/personeller" element={<Personeller />} />
           <Route path="/kullanici-tipleri" element={<UserTypes />} />
-          <Route path="/firmalar" element={<Firms />} />
-          <Route path="/projeler" element={<Projects />} />
           <Route path="/siteler" element={<Sites />} />
           <Route path="/sites" element={<Sites />} />
           <Route path="/blocks" element={<Blocks />} />

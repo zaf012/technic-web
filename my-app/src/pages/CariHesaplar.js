@@ -6,9 +6,6 @@ import config from '../config';
 const CariHesaplar = () => {
     const [data, setData] = useState([]);
     const [cariGroups, setCariGroups] = useState([]);
-    const [sites, setSites] = useState([]);
-    const [firms, setFirms] = useState([]);
-    const [projects, setProjects] = useState([]);
     const [userTypes, setUserTypes] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
@@ -19,9 +16,6 @@ const CariHesaplar = () => {
     useEffect(() => {
         fetchAccounts();
         fetchGroups();
-        fetchSites();
-        fetchFirms();
-        fetchProjects();
         fetchUserTypes();
     }, []);
 
@@ -36,48 +30,6 @@ const CariHesaplar = () => {
         } catch (error) {
             message.error('Gruplar alınırken hata oluştu!');
             setCariGroups([]);
-        }
-    };
-
-    const fetchSites = async () => {
-        try {
-            const response = await axios.get(`${config.apiUrl}/sites/get-all`);
-            if (response.data && response.data.data) {
-                setSites(response.data.data);
-            } else {
-                setSites([]);
-            }
-        } catch (error) {
-            message.error('Siteler alınırken hata oluştu!');
-            setSites([]);
-        }
-    };
-
-    const fetchFirms = async () => {
-        try {
-            const response = await axios.get(`${config.apiUrl}/firms/get-all`);
-            if (response.data && response.data.data) {
-                setFirms(response.data.data);
-            } else {
-                setFirms([]);
-            }
-        } catch (error) {
-            message.error('Firmalar alınırken hata oluştu!');
-            setFirms([]);
-        }
-    };
-
-    const fetchProjects = async () => {
-        try {
-            const response = await axios.get(`${config.apiUrl}/projects/get-all`);
-            if (response.data && response.data.data) {
-                setProjects(response.data.data);
-            } else {
-                setProjects([]);
-            }
-        } catch (error) {
-            message.error('Projeler alınırken hata oluştu!');
-            setProjects([]);
         }
     };
 
@@ -122,7 +74,9 @@ const CariHesaplar = () => {
             form.resetFields();
             form.setFieldsValue({
                 phoneCountryCode: '+90',
-                gsmCountryCode: '+90'
+                gsmCountryCode: '+90',
+                userStatus: true,  // Yeni kayıt için varsayılan aktif
+                isActive: true     // Yeni kayıt için varsayılan aktif
             });
         }
     };
@@ -151,30 +105,6 @@ const CariHesaplar = () => {
                 const selectedGroup = cariGroups.find(g => g.id === values.accountGroupId);
                 if (selectedGroup) {
                     enrichedValues.accountGroupName = selectedGroup.groupName;
-                }
-            }
-
-            // siteId için siteName ekle
-            if (values.siteId) {
-                const selectedSite = sites.find(s => s.id === values.siteId);
-                if (selectedSite) {
-                    enrichedValues.siteName = selectedSite.siteName;
-                }
-            }
-
-            // firmId için firmName ekle
-            if (values.firmId) {
-                const selectedFirm = firms.find(f => f.id === values.firmId);
-                if (selectedFirm) {
-                    enrichedValues.firmName = selectedFirm.firmName;
-                }
-            }
-
-            // projectId için projectName ekle
-            if (values.projectId) {
-                const selectedProject = projects.find(p => p.id === values.projectId);
-                if (selectedProject) {
-                    enrichedValues.projectName = selectedProject.projectName;
                 }
             }
 
@@ -225,10 +155,79 @@ const CariHesaplar = () => {
             sorter: (a, b) => (a.username || '').localeCompare(b.username || '')
         },
         {
+            title: 'Firma/Site',
+            dataIndex: 'siteName',
+            key: 'siteName',
+            sorter: (a, b) => (a.siteName || '').localeCompare(b.siteName || '')
+        },
+        {
+            title: 'Adres',
+            dataIndex: 'address',
+            key: 'address',
+            sorter: (a, b) => (a.address || '').localeCompare(b.address || '')
+        },
+        {
+            title: 'Telefon',
+            dataIndex: 'phone',
+            key: 'phone',
+            render: (phone, record) => {
+                const countryCode = record.phoneCountryCode || '';
+                const phoneNumber = phone || '';
+                if (!countryCode && !phoneNumber) return '-';
+                return `${countryCode} ${phoneNumber}`.trim();
+            },
+            sorter: (a, b) => {
+                const phoneA = `${a.phoneCountryCode || ''} ${a.phone || ''}`.trim();
+                const phoneB = `${b.phoneCountryCode || ''} ${b.phone || ''}`.trim();
+                return phoneA.localeCompare(phoneB);
+            }
+        },
+        {
+            title: 'GSM',
+            dataIndex: 'gsm',
+            key: 'gsm',
+            render: (gsm, record) => {
+                const countryCode = record.gsmCountryCode || '';
+                const gsmNumber = gsm || '';
+                if (!countryCode && !gsmNumber) return '-';
+                return `${countryCode} ${gsmNumber}`.trim();
+            },
+            sorter: (a, b) => {
+                const gsmA = `${a.gsmCountryCode || ''} ${a.gsm || ''}`.trim();
+                const gsmB = `${b.gsmCountryCode || ''} ${b.gsm || ''}`.trim();
+                return gsmA.localeCompare(gsmB);
+            }
+        },
+
+        {
             title: 'E-posta',
             dataIndex: 'email',
             key: 'email',
             sorter: (a, b) => (a.email || '').localeCompare(b.email || '')
+        },
+        {
+            title: 'Vergi Dairesi',
+            dataIndex: 'taxOffice',
+            key: 'taxOffice',
+            sorter: (a, b) => (a.taxOffice || '').localeCompare(b.taxOffice || '')
+        },
+        {
+            title: 'Vergi No',
+            dataIndex: 'taxNumber',
+            key: 'taxNumber',
+            sorter: (a, b) => (a.taxNumber || '').localeCompare(b.taxNumber || '')
+        },
+        {
+            title: 'TC Kimlik No',
+            dataIndex: 'tcIdentityNo',
+            key: 'tcIdentityNo',
+            sorter: (a, b) => (a.tcIdentityNo || '').localeCompare(b.tcIdentityNo || '')
+        },
+        {
+            title: 'Yetkili Personel',
+            dataIndex: 'authorizedPersonnel',
+            key: 'authorizedPersonnel',
+            sorter: (a, b) => (a.authorizedPersonnel || '').localeCompare(b.authorizedPersonnel || '')
         },
         {
             title: 'Kullanıcı Tipi',
@@ -243,75 +242,14 @@ const CariHesaplar = () => {
             sorter: (a, b) => (a.accountGroupName || '').localeCompare(b.accountGroupName || '')
         },
         {
-            title: 'Site',
-            dataIndex: 'siteName',
-            key: 'siteName',
-            sorter: (a, b) => (a.siteName || '').localeCompare(b.siteName || '')
-        },
-        {
-            title: 'Firma',
-            dataIndex: 'firmName',
-            key: 'firmName',
-            sorter: (a, b) => (a.firmName || '').localeCompare(b.firmName || '')
-        },
-        {
-            title: 'Firma Kısa Adı',
-            dataIndex: 'companyShortName',
-            key: 'companyShortName',
-            sorter: (a, b) => (a.companyShortName || '').localeCompare(b.companyShortName || '')
-        },
-        {
-            title: 'Proje',
-            dataIndex: 'projectName',
-            key: 'projectName',
-            sorter: (a, b) => (a.projectName || '').localeCompare(b.projectName || '')
-        },
-        {
-            title: 'Yetkili Personel',
-            dataIndex: 'authorizedPersonnel',
-            key: 'authorizedPersonnel',
-            sorter: (a, b) => (a.authorizedPersonnel || '').localeCompare(b.authorizedPersonnel || '')
-        },
-        {
-            title: 'Telefon',
-            dataIndex: 'phone',
-            key: 'phone',
-            sorter: (a, b) => (a.phone || '').localeCompare(b.phone || '')
-        },
-        {title: 'GSM', dataIndex: 'gsm', key: 'gsm', sorter: (a, b) => (a.gsm || '').localeCompare(b.gsm || '')},
-        {
-            title: 'Adres',
-            dataIndex: 'address',
-            key: 'address',
-            sorter: (a, b) => (a.address || '').localeCompare(b.address || '')
-        },
-        {
-            title: 'Vergi No',
-            dataIndex: 'taxNumber',
-            key: 'taxNumber',
-            sorter: (a, b) => (a.taxNumber || '').localeCompare(b.taxNumber || '')
-        },
-        {
-            title: 'Vergi Dairesi',
-            dataIndex: 'taxOffice',
-            key: 'taxOffice',
-            sorter: (a, b) => (a.taxOffice || '').localeCompare(b.taxOffice || '')
-        },
-        {
-            title: 'TC Kimlik No',
-            dataIndex: 'tcIdentityNo',
-            key: 'tcIdentityNo',
-            sorter: (a, b) => (a.tcIdentityNo || '').localeCompare(b.tcIdentityNo || '')
-        },
-        {
             title: 'Kullanıcı Durumu', dataIndex: 'userStatus', key: 'userStatus',
             render: (userStatus) => userStatus ? 'Aktif' : 'Pasif',
             sorter: (a, b) => (a.userStatus === b.userStatus ? 0 : a.userStatus ? 1 : -1)
         },
         {
-            title: 'Hesap Durumu', dataIndex: 'active', key: 'active',
-            render: (active) => active ? 'Aktif' : 'Pasif',
-            sorter: (a, b) => (a.active === b.active ? 0 : a.active ? 1 : -1)
+            title: 'Hesap Durumu', dataIndex: 'isActive', key: 'isActive',
+            render: (isActive) => isActive ? 'Aktif' : 'Pasif',
+            sorter: (a, b) => (a.isActive === b.isActive ? 0 : a.isActive ? 1 : -1)
         },
         {
             title: 'İşlemler',
@@ -353,7 +291,7 @@ const CariHesaplar = () => {
             />
             <Modal
                 title={editingRecord ? 'Düzenle' : 'Ekle'}
-                visible={isModalVisible}
+                open={isModalVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
                 okText="Kaydet"
@@ -361,19 +299,39 @@ const CariHesaplar = () => {
                 width={800}
             >
                 <Form form={form} layout="vertical">
-                    <Form.Item name="username" label="Kullanıcı Adı">
-                        <Input/>
+                    <Form.Item
+                        name="username"
+                        label="Kullanıcı Adı"
+                        rules={[{required: true, message: 'Kullanıcı adı zorunludur!'}]}
+                    >
+                        <Input placeholder="Kullanıcı adı giriniz"/>
                     </Form.Item>
-                    <Form.Item name="email" label="E-posta">
-                        <Input type="email"/>
+                    <Form.Item
+                        name="email"
+                        label="E-posta"
+                        rules={[
+                            {required: true, message: 'E-posta zorunludur!'},
+                            {type: 'email', message: 'Geçerli bir e-posta adresi giriniz!'}
+                        ]}
+                    >
+                        <Input type="email" placeholder="ornek@email.com"/>
                     </Form.Item>
-                    <Form.Item name="password" label="Şifre">
-                        <Input.Password/>
+                    <Form.Item
+                        name="password"
+                        label="Şifre"
+                        rules={[
+                            {required: !editingRecord, message: 'Şifre zorunludur!'},
+                            {min: 6, message: 'Şifre en az 6 karakter olmalıdır!'}
+                        ]}
+                    >
+                        <Input.Password
+                            placeholder={editingRecord ? "Değiştirmek için yeni şifre giriniz" : "Şifre giriniz"}/>
                     </Form.Item>
                     <Form.Item name="userTypeId" label="Kullanıcı Tipi">
                         <Select
                             placeholder="Kullanıcı tipi seçiniz"
                             showSearch
+                            allowClear
                             filterOption={(input, option) =>
                                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                             }
@@ -389,6 +347,7 @@ const CariHesaplar = () => {
                         <Select
                             placeholder="Cari Grup seçiniz"
                             showSearch
+                            allowClear
                             filterOption={(input, option) =>
                                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                             }
@@ -400,100 +359,67 @@ const CariHesaplar = () => {
                             ))}
                         </Select>
                     </Form.Item>
-                    <Form.Item name="siteId" label="Site">
-                        <Select
-                            placeholder="Site seçiniz"
-                            showSearch
-                            filterOption={(input, option) =>
-                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                            }
-                        >
-                            {sites.map(site => (
-                                <Select.Option key={site.id} value={site.id}>
-                                    {site.siteName}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item name="firmId" label="Firma">
-                        <Select
-                            placeholder="Firma seçiniz"
-                            showSearch
-                            filterOption={(input, option) =>
-                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                            }
-                        >
-                            {firms.map(firm => (
-                                <Select.Option key={firm.id} value={firm.id}>
-                                    {firm.firmName}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item name="companyShortName" label="Firma Kısa Adı">
-                        <Input/>
-                    </Form.Item>
-                    <Form.Item name="projectId" label="Proje">
-                        <Select
-                            placeholder="Proje seçiniz"
-                            showSearch
-                            filterOption={(input, option) =>
-                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                            }
-                        >
-                            {projects.map(project => (
-                                <Select.Option key={project.id} value={project.id}>
-                                    {project.projectName}
-                                </Select.Option>
-                            ))}
-                        </Select>
+                    <Form.Item name="siteName" label="Firma & Site Adı">
+                        <Input placeholder="Firme veya Site adı giriniz"/>
                     </Form.Item>
                     <Form.Item name="authorizedPersonnel" label="Yetkili Personel">
-                        <Input/>
+                        <Input placeholder="Yetkili personel adı giriniz"/>
                     </Form.Item>
                     <Form.Item name="phoneCountryCode" label="Telefon Ülke Kodu">
                         <Input placeholder="+90"/>
                     </Form.Item>
                     <Form.Item name="phone" label="Telefon">
-                        <Input/>
+                        <Input placeholder="5XXXXXXXXX"/>
                     </Form.Item>
                     <Form.Item name="gsmCountryCode" label="GSM Ülke Kodu">
                         <Input placeholder="+90"/>
                     </Form.Item>
                     <Form.Item name="gsm" label="GSM">
-                        <Input/>
+                        <Input placeholder="5XXXXXXXXX"/>
                     </Form.Item>
                     <Form.Item name="address" label="Adres">
-                        <Input.TextArea rows={2}/>
+                        <Input.TextArea rows={2} placeholder="Adres giriniz"/>
                     </Form.Item>
                     <Form.Item name="fax" label="Fax">
-                        <Input/>
-                    </Form.Item>
-                    <Form.Item name="pttBox" label="PTT Kutusu">
-                        <Input/>
+                        <Input placeholder="Fax numarası"/>
                     </Form.Item>
                     <Form.Item name="postalCode" label="Posta Kodu">
-                        <Input/>
+                        <Input placeholder="Posta kodu giriniz"/>
                     </Form.Item>
                     <Form.Item name="taxNumber" label="Vergi Numarası">
-                        <Input/>
+                        <Input placeholder="Vergi numarası giriniz"/>
                     </Form.Item>
                     <Form.Item name="taxOffice" label="Vergi Dairesi">
-                        <Input/>
+                        <Input placeholder="Vergi dairesi adı giriniz"/>
                     </Form.Item>
-                    <Form.Item name="tcIdentityNo" label="TC Kimlik No">
-                        <Input/>
+                    <Form.Item
+                        name="tcIdentityNo"
+                        label="TC Kimlik No"
+                        rules={[
+                            {len: 11, message: 'TC Kimlik No 11 karakter olmalıdır!'},
+                            {pattern: /^[0-9]+$/, message: 'Sadece rakam girebilirsiniz!'}
+                        ]}
+                    >
+                        <Input placeholder="XXXXXXXXXXX" maxLength={11}/>
                     </Form.Item>
-                    <Form.Item name="bankAddress" label="Banka Adresi">
-                        <Input/>
+                    <Form.Item name="iban" label="IBAN">
+                        <Input placeholder="TR00....."/>
                     </Form.Item>
-                    <Form.Item name="userStatus" label="Kullanıcı Durumu">
+                    <Form.Item
+                        name="userStatus"
+                        label="Kullanıcı Durumu"
+                        tooltip="Kullanıcının sisteme giriş yapıp yapamayacağını belirler"
+                    >
                         <Radio.Group>
                             <Radio value={true}>Aktif</Radio>
                             <Radio value={false}>Pasif</Radio>
                         </Radio.Group>
                     </Form.Item>
-                    <Form.Item name="active" label="Cari Hesap Durumu">
+                    <Form.Item
+                        name="isActive"
+                        label="Cari Hesap Durumu"
+                        tooltip="Cari hesabın aktif veya pasif olduğunu belirler"
+                    >
                         <Radio.Group>
                             <Radio value={true}>Aktif</Radio>
                             <Radio value={false}>Pasif</Radio>
