@@ -35,19 +35,20 @@ const SiteProductInventoryDetail = () => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        loadInitialData();
-    }, []);
+        const loadInitialData = async () => {
+            await Promise.all([
+                fetchSiteInventories(),
+                fetchSites(),
+                fetchSquares(),
+                fetchBlocks(),
+                fetchSystems(),
+                fetchCategories()
+            ]);
+        };
 
-    const loadInitialData = async () => {
-        await Promise.all([
-            fetchSiteInventories(),
-            fetchSites(),
-            fetchSquares(),
-            fetchBlocks(),
-            fetchSystems(),
-            fetchCategories()
-        ]);
-    };
+        loadInitialData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const fetchSiteInventories = async () => {
         setLoading(true);
@@ -102,7 +103,11 @@ const SiteProductInventoryDetail = () => {
     const fetchSystems = async () => {
         try {
             const data = await systemService.fetchAll();
-            setSystems(data);
+            // Sadece description NULL olanları filtrele (sistem tanımları)
+            const systemDefinitions = data.filter(system =>
+                !system.description || system.description === null || system.description.trim() === ''
+            );
+            setSystems(systemDefinitions);
         } catch (error) {
             console.error(error);
             toast.error('Sistemler alınırken hata oluştu!');
