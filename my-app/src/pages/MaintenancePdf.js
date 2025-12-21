@@ -33,6 +33,10 @@ const MaintenancePdf = () => {
     const [checklistItems, setChecklistItems] = useState([]);
     const [checkedItemsMap, setCheckedItemsMap] = useState({});
 
+    // Blok yönetimi için state'ler
+    const [blocks, setBlocks] = useState([]);
+    const [selectedSiteId, setSelectedSiteId] = useState(null);
+
     // AŞAMA 2 - Fotoğraf upload state'leri
     const [image1, setImage1] = useState('');
     const [image2, setImage2] = useState('');
@@ -53,7 +57,8 @@ const MaintenancePdf = () => {
                     fetchRecentPdfs(),
                     fetchSystems(),
                     fetchCustomers(),
-                    fetchSites()
+                    fetchSites(),
+                    fetchBlocks()
                 ]);
             } catch (error) {
                 console.error('Veri yükleme hatası:', error);
@@ -135,10 +140,26 @@ const MaintenancePdf = () => {
         }
     };
 
+    // Blokları getir
+    const fetchBlocks = async () => {
+        try {
+            const response = await axios.get(`${config.apiUrl}/blocks/get-all`);
+            if (response.data && response.data.data) {
+                setBlocks(response.data.data);
+            } else {
+                setBlocks([]);
+            }
+        } catch (error) {
+            toast.error('Bloklar alınırken hata oluştu!');
+            setBlocks([]);
+        }
+    };
+
     const showModal = () => {
         setIsModalVisible(true);
         form.resetFields();
         setSelectedCustomer(null);
+        setSelectedSiteId(null); // Site ID'sini temizle
         setChecklistItems([]);
         setCheckedItemsMap({});
         setImage1('');
@@ -153,6 +174,7 @@ const MaintenancePdf = () => {
         setIsModalVisible(false);
         form.resetFields();
         setSelectedCustomer(null);
+        setSelectedSiteId(null); // Site ID'sini temizle
         setChecklistItems([]);
         setCheckedItemsMap({});
         setImage1('');
@@ -168,12 +190,17 @@ const MaintenancePdf = () => {
         const customer = customers.find(c => c.id === customerId);
         if (customer) {
             setSelectedCustomer(customer);
+
+            // Site ID'sini set et
+            setSelectedSiteId(customer.siteId || null);
+
             form.setFieldsValue({
                 customerAddress: customer.address || '',
                 authorizedPersonnel: customer.authorizedPersonnel || '',
                 telNo: customer.phone || '',
                 gsmNo: customer.gsm || '',
                 email: customer.email || '',
+                blockName: undefined // Blok seçimini temizle
             });
         }
     };
@@ -870,12 +897,21 @@ const MaintenancePdf = () => {
                                         label="Blok Adı"
                                         rules={[{required: true, message: 'Lütfen blok seçiniz!'}]}
                                     >
-                                        <Select placeholder="Blok seçiniz" showSearch>
-                                            {sites.map(site => (
-                                                <Select.Option key={site.id} value={site.siteName}>
-                                                    {site.siteName}
-                                                </Select.Option>
-                                            ))}
+                                        <Select
+                                            placeholder={selectedSiteId ? "Blok seçiniz" : "Önce müşteri seçiniz"}
+                                            showSearch
+                                            disabled={!selectedSiteId}
+                                            filterOption={(input, option) =>
+                                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {blocks
+                                                .filter(block => block.siteId === selectedSiteId)
+                                                .map(block => (
+                                                    <Select.Option key={block.id} value={block.blockName}>
+                                                        {block.blockName}
+                                                    </Select.Option>
+                                                ))}
                                         </Select>
                                     </Form.Item>
                                 </Col>
