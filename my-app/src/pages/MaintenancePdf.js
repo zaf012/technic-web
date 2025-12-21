@@ -817,9 +817,7 @@ const MaintenancePdf = () => {
                                         >
                                             {customers.map(customer => (
                                                 <Select.Option key={customer.id} value={customer.id}>
-                                                    {customer.firmName && customer.projectName
-                                                        ? `${customer.firmName} - ${customer.projectName}`
-                                                        : customer.firmName}
+                                                    {customer.siteName}
                                                 </Select.Option>
                                             ))}
                                         </Select>
