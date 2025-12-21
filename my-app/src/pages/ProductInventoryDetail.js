@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Space, Popconfirm, TreeSelect, Switch, Tag } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { toast, ToastContainer } from 'react-toastify';
+import React, {useState, useEffect} from 'react';
+import {Table, Button, Modal, Form, Input, Space, Popconfirm, TreeSelect, Switch, Tag} from 'antd';
+import {PlusOutlined, EditOutlined, DeleteOutlined} from '@ant-design/icons';
+import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { categoryService, productDetailService, categoryHelper } from '../services/ProductInventoryService';
+import {categoryService, productDetailService, categoryHelper} from '../services/ProductInventoryService';
 
 const ProductInventoryDetail = () => {
     const [data, setData] = useState([]);
@@ -242,7 +242,7 @@ const ProductInventoryDetail = () => {
             key: 'categoryPath',
             width: 330,
             render: (categoryPath) => (
-                <span style={{ fontSize: '12px' }}>{categoryPath || '-'}</span>
+                <span style={{fontSize: '12px'}}>{categoryPath || '-'}</span>
             ),
         },
         {
@@ -267,9 +267,9 @@ const ProductInventoryDetail = () => {
                 <Space size="small">
                     <Button
                         type="link"
-                        icon={<EditOutlined />}
+                        icon={<EditOutlined/>}
                         onClick={() => showModal(record)}
-                        style={{ padding: '4px 8px' }}
+                        style={{padding: '4px 8px'}}
                     >
                         Düzenle
                     </Button>
@@ -282,8 +282,8 @@ const ProductInventoryDetail = () => {
                         <Button
                             type="link"
                             danger
-                            icon={<DeleteOutlined />}
-                            style={{ padding: '4px 8px' }}
+                            icon={<DeleteOutlined/>}
+                            style={{padding: '4px 8px'}}
                         >
                             Sil
                         </Button>
@@ -294,8 +294,8 @@ const ProductInventoryDetail = () => {
     ];
 
     return (
-        <div style={{ padding: '24px' }}>
-            <ToastContainer position="top-right" autoClose={3000} />
+        <div style={{padding: '24px'}}>
+            <ToastContainer position="top-right" autoClose={3000}/>
 
             <div style={{
                 marginBottom: '16px',
@@ -303,19 +303,19 @@ const ProductInventoryDetail = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center'
             }}>
-                <h2 style={{ margin: 0 }}>Ürün Envanter Listesi</h2>
+                <h2 style={{margin: 0}}>Ürün Envanter Listesi</h2>
                 <Space>
                     <Input.Search
                         placeholder="Market Kodu, Marka, Ürün Adı..."
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
                         onSearch={handleSearch}
-                        style={{ width: 300 }}
+                        style={{width: 300}}
                         allowClear
                     />
                     <Button
                         type="primary"
-                        icon={<PlusOutlined />}
+                        icon={<PlusOutlined/>}
                         onClick={() => showModal()}
                     >
                         Yeni Ürün Ekle
@@ -334,7 +334,7 @@ const ProductInventoryDetail = () => {
                     showTotal: (total) => `Toplam ${total} kayıt`,
                 }}
                 onChange={handleTableChange}
-                scroll={{ x: 1200 }}
+                scroll={{x: 1200}}
                 bordered
             />
 
@@ -355,11 +355,11 @@ const ProductInventoryDetail = () => {
                     <Form.Item
                         name="categoryId"
                         label="Kategori"
-                        rules={[{ required: true, message: 'Lütfen kategori seçiniz!' }]}
+                        rules={[{required: true, message: 'Lütfen kategori seçiniz!'}]}
                     >
                         <TreeSelect
-                            style={{ width: '100%' }}
-                            popupStyle={{ maxHeight: 400, overflow: 'auto' }}
+                            style={{width: '100%'}}
+                            popupStyle={{maxHeight: 400, overflow: 'auto'}}
                             treeData={treeData}
                             placeholder="Kategori seçiniz"
                             treeDefaultExpandAll
@@ -373,31 +373,30 @@ const ProductInventoryDetail = () => {
                         name="marketCode"
                         label="Market Kodu"
                         rules={[
-                            { required: true, message: 'Lütfen market kodu giriniz!' },
-                            { max: 100, message: 'Market kodu en fazla 100 karakter olabilir!' }
+                            {message: 'Lütfen market kodu giriniz!'},
                         ]}
                     >
-                        <Input placeholder="Market kodu giriniz" />
+                        <Input placeholder="Market kodu giriniz"/>
                     </Form.Item>
 
                     <Form.Item
                         name="brandName"
                         label="Marka"
                         rules={[
-                            { max: 200, message: 'Marka adı en fazla 200 karakter olabilir!' }
+                            {max: 200, message: 'Marka adı en fazla 200 karakter olabilir!'}
                         ]}
                     >
-                        <Input placeholder="Marka adı giriniz" />
+                        <Input placeholder="Marka adı giriniz"/>
                     </Form.Item>
 
                     <Form.Item
                         name="productName"
                         label="Model (Ürün Adı)"
                         rules={[
-                            { max: 500, message: 'Ürün adı en fazla 500 karakter olabilir!' }
+                            {max: 500, message: 'Ürün adı en fazla 500 karakter olabilir!'}
                         ]}
                     >
-                        <Input placeholder="Ürün adı giriniz" />
+                        <Input placeholder="Ürün adı giriniz"/>
                     </Form.Item>
 
                     <Form.Item
@@ -405,7 +404,7 @@ const ProductInventoryDetail = () => {
                         label="Aktif"
                         valuePropName="checked"
                     >
-                        <Switch checkedChildren="Aktif" unCheckedChildren="Pasif" />
+                        <Switch checkedChildren="Aktif" unCheckedChildren="Pasif"/>
                     </Form.Item>
                 </Form>
             </Modal>

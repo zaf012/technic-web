@@ -12,6 +12,7 @@ import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import config from '../config';
 import maintenancePdfService from '../services/MaintenancePdfService';
+import { siteProductInventoryService } from '../services/SiteProductInventoryService';
 import dayjs from 'dayjs';
 
 const {TextArea} = Input;
@@ -35,7 +36,12 @@ const MaintenancePdf = () => {
 
     // Blok yönetimi için state'ler
     const [blocks, setBlocks] = useState([]);
+    const [squares, setSquares] = useState([]);
     const [selectedSiteId, setSelectedSiteId] = useState(null);
+
+    // Cihaz envanteri için state'ler
+    const [siteDevices, setSiteDevices] = useState([]);
+    const [filteredDevices, setFilteredDevices] = useState([]);
 
     // AŞAMA 2 - Fotoğraf upload state'leri
     const [image1, setImage1] = useState('');
@@ -58,7 +64,9 @@ const MaintenancePdf = () => {
                     fetchSystems(),
                     fetchCustomers(),
                     fetchSites(),
-                    fetchBlocks()
+                    fetchSquares(),
+                    fetchBlocks(),
+                    fetchSiteDevices()
                 ]);
             } catch (error) {
                 console.error('Veri yükleme hatası:', error);
@@ -140,6 +148,21 @@ const MaintenancePdf = () => {
         }
     };
 
+    // Square'leri (Ada) getir
+    const fetchSquares = async () => {
+        try {
+            const response = await axios.get(`${config.apiUrl}/squares/get-all`);
+            if (response.data && response.data.data) {
+                setSquares(response.data.data);
+            } else {
+                setSquares([]);
+            }
+        } catch (error) {
+            toast.error('Adalar alınırken hata oluştu!');
+            setSquares([]);
+        }
+    };
+
     // Blokları getir
     const fetchBlocks = async () => {
         try {
@@ -155,11 +178,25 @@ const MaintenancePdf = () => {
         }
     };
 
+    // Site cihaz envanterini getir
+    const fetchSiteDevices = async () => {
+        try {
+            const response = await siteProductInventoryService.fetchAll();
+            const devices = Array.isArray(response) ? response : (response.content || []);
+            setSiteDevices(devices);
+        } catch (error) {
+            console.error('Cihaz envanteri alınırken hata:', error);
+            toast.error('Cihaz envanteri alınırken hata oluştu!');
+            setSiteDevices([]);
+        }
+    };
+
     const showModal = () => {
         setIsModalVisible(true);
         form.resetFields();
         setSelectedCustomer(null);
         setSelectedSiteId(null); // Site ID'sini temizle
+        setFilteredDevices([]); // Cihaz listesini temizle
         setChecklistItems([]);
         setCheckedItemsMap({});
         setImage1('');
@@ -175,6 +212,7 @@ const MaintenancePdf = () => {
         form.resetFields();
         setSelectedCustomer(null);
         setSelectedSiteId(null); // Site ID'sini temizle
+        setFilteredDevices([]); // Cihaz listesini temizle
         setChecklistItems([]);
         setCheckedItemsMap({});
         setImage1('');
@@ -194,13 +232,52 @@ const MaintenancePdf = () => {
             // Site ID'sini set et
             setSelectedSiteId(customer.siteId || null);
 
+            // Site'ye göre cihazları filtrele
+            if (customer.siteId) {
+                const devicesForSite = siteDevices.filter(device => device.siteId === customer.siteId);
+                setFilteredDevices(devicesForSite);
+            } else {
+                setFilteredDevices([]);
+            }
+
+            // Telefon numaralarının başına 90 ekle (eğer yoksa)
+            const formatPhone = (phone) => {
+                if (!phone) return '';
+                const cleaned = phone.replace(/\D/g, ''); // Sadece rakamlar
+                if (cleaned.startsWith('90')) return cleaned;
+                return '90' + cleaned;
+            };
+
             form.setFieldsValue({
                 customerAddress: customer.address || '',
                 authorizedPersonnel: customer.authorizedPersonnel || '',
-                telNo: customer.phone || '',
-                gsmNo: customer.gsm || '',
+                telNo: formatPhone(customer.phone),
+                gsmNo: formatPhone(customer.gsm),
+                fax: customer.fax ? formatPhone(customer.fax) : '',
                 email: customer.email || '',
-                blockName: undefined // Blok seçimini temizle
+                blockName: undefined, // Blok seçimini temizle
+                deviceQrCode: undefined, // Cihaz seçimini temizle
+                productSerialNo: '', // Cihaz seri no temizle
+                productBrand: '', // Cihaz markası temizle
+                productModel: '', // Cihaz modeli temizle
+                productPurpose: '', // Kullanım amacı temizle
+                floor: '', // Kat temizle
+                location: '' // Lokasyon temizle
+            });
+        }
+    };
+
+    // Cihaz seçildiğinde bilgileri otomatik doldur
+    const handleDeviceChange = (deviceQrCode) => {
+        const device = siteDevices.find(d => d.qrCode === deviceQrCode);
+        if (device) {
+            form.setFieldsValue({
+                productSerialNo: device.qrCode || '', // Cihaz Seri No = QR Kod
+                productBrand: device.brandName || '', // Cihaz Markası
+                productModel: device.modelName || '', // Cihaz Modeli
+                productPurpose: device.systemName || '', // Kullanım Amacı = Sistem Adı
+                floor: device.floorNumber !== null && device.floorNumber !== undefined ? device.floorNumber.toString() : '', // Bulunduğu Kat
+                location: device.location || '' // Lokasyon
             });
         }
     };
@@ -906,7 +983,12 @@ const MaintenancePdf = () => {
                                             }
                                         >
                                             {blocks
-                                                .filter(block => block.siteId === selectedSiteId)
+                                                .filter(block => {
+                                                    // Block'un squareId'sini bul
+                                                    const square = squares.find(sq => sq.id === block.squareId);
+                                                    // Square'in siteId'si seçilen site'le eşleşiyor mu?
+                                                    return square && square.siteId === selectedSiteId;
+                                                })
                                                 .map(block => (
                                                     <Select.Option key={block.id} value={block.blockName}>
                                                         {block.blockName}
@@ -951,6 +1033,40 @@ const MaintenancePdf = () => {
                                 label: 'Cihaz Bilgileri',
                                 children: (
                                     <div>
+                            <Row gutter={16} style={{ marginBottom: 16, backgroundColor: '#e6f7ff', padding: '12px', borderRadius: '4px' }}>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name="deviceQrCode"
+                                        label="Cihaz Seç (Otomatik Doldurma)"
+                                        tooltip="Seçili siteye ait cihazları listeler. Cihaz seçtiğinizde bilgiler otomatik doldurulur."
+                                    >
+                                        <Select
+                                            placeholder={selectedSiteId ? "Cihaz seçiniz..." : "Önce müşteri seçiniz"}
+                                            showSearch
+                                            allowClear
+                                            disabled={!selectedSiteId || filteredDevices.length === 0}
+                                            onChange={handleDeviceChange}
+                                            filterOption={(input, option) =>
+                                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {filteredDevices.map(device => (
+                                                <Select.Option key={device.id} value={device.qrCode}>
+                                                    {device.qrCode} - {device.productName} ({device.systemName})
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                    {filteredDevices.length === 0 && selectedSiteId && (
+                                        <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-16px' }}>
+                                            ℹ️ Bu site için kayıtlı cihaz bulunamadı. Aşağıdaki alanları manuel olarak doldurunuz.
+                                        </div>
+                                    )}
+                                </Col>
+                            </Row>
+
+                            <Divider>Cihaz Detay Bilgileri</Divider>
+
                             <Row gutter={16}>
                                 <Col span={8}>
                                     <Form.Item
@@ -1233,16 +1349,6 @@ const MaintenancePdf = () => {
                                     <div>
                             {checklistItems.length > 0 ? (
                                 <div>
-                                    <div style={{
-                                        marginBottom: 16,
-                                        padding: 12,
-                                        backgroundColor: '#e6f7ff',
-                                        border: '1px solid #91d5ff',
-                                        borderRadius: 4
-                                    }}>
-                                        <strong>📋 Bilgi:</strong> Toplam {checklistItems.length} adet checklist maddesi bulundu.
-                                        Her madde için "Yapıldı (Evet)" veya "Yapılmadı (Hayır)" seçeneğini işaretleyiniz.
-                                    </div>
                                     <div style={{maxHeight: '500px', overflowY: 'auto', border: '1px solid #d9d9d9'}}>
                                         <table style={{width: '100%', borderCollapse: 'collapse'}}>
                                             <thead style={{position: 'sticky', top: 0, backgroundColor: '#f0f0f0', zIndex: 1}}>
@@ -1281,7 +1387,7 @@ const MaintenancePdf = () => {
                                                     fontWeight: 'bold',
                                                     backgroundColor: '#f6ffed'
                                                 }}>
-                                                    ✓ Yapıldı
+                                                    EVET
                                                 </th>
                                                 <th style={{
                                                     border: '1px solid #d9d9d9',
@@ -1291,7 +1397,7 @@ const MaintenancePdf = () => {
                                                     fontWeight: 'bold',
                                                     backgroundColor: '#fff1f0'
                                                 }}>
-                                                    ✗ Yapılmadı
+                                                    HAYIR
                                                 </th>
                                             </tr>
                                             </thead>
