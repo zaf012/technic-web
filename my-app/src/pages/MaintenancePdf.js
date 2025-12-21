@@ -285,7 +285,7 @@ const MaintenancePdf = () => {
 
                 // Backend'in beklediği formatta veri hazırla
                 const requestData = {
-                    customerFirmName: selectedCustomer?.firmName || '',
+                    customerFirmName: selectedCustomer?.siteName || '',
                     customerAddress: values.customerAddress || '',
                     authorizedPersonnel: values.authorizedPersonnel || '',
                     telNo: values.telNo || '',
