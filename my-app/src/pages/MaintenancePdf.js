@@ -12,7 +12,7 @@ import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import config from '../config';
 import maintenancePdfService from '../services/MaintenancePdfService';
-import { siteProductInventoryService } from '../services/SiteProductInventoryService';
+import {siteProductInventoryService} from '../services/SiteProductInventoryService';
 import dayjs from 'dayjs';
 
 const {TextArea} = Input;
@@ -37,7 +37,7 @@ const MaintenancePdf = () => {
     // Blok yönetimi için state'ler
     const [blocks, setBlocks] = useState([]);
     const [squares, setSquares] = useState([]);
-    const [selectedSiteId, setSelectedSiteId] = useState(null);
+    const [filteredBlocks, setFilteredBlocks] = useState([]);
 
     // Cihaz envanteri için state'ler
     const [siteDevices, setSiteDevices] = useState([]);
@@ -122,12 +122,17 @@ const MaintenancePdf = () => {
     const fetchCustomers = async () => {
         try {
             const response = await axios.get(`${config.apiUrl}/instant-accounts/active`);
+            console.log('📋 Müşteriler response:', response.data);
             if (response.data && response.data.data) {
                 setCustomers(response.data.data);
+                console.log('✅ Müşteriler yüklendi:', response.data.data.length, 'adet');
+                console.log('İlk müşteri örneği:', response.data.data[0]);
             } else {
                 setCustomers([]);
+                console.log('⚠️ Müşteri verisi bulunamadı');
             }
         } catch (error) {
+            console.error('❌ Müşteri yükleme hatası:', error);
             toast.error('Müşteriler alınırken hata oluştu!');
             setCustomers([]);
         }
@@ -137,12 +142,17 @@ const MaintenancePdf = () => {
     const fetchSites = async () => {
         try {
             const response = await axios.get(`${config.apiUrl}/sites/get-all`);
+            console.log('🏢 Sites response:', response.data);
             if (response.data && response.data.data) {
                 setSites(response.data.data);
+                console.log('✅ Siteler yüklendi:', response.data.data.length, 'adet');
+                console.log('İlk site örneği:', response.data.data[0]);
             } else {
                 setSites([]);
+                console.log('⚠️ Site verisi bulunamadı');
             }
         } catch (error) {
+            console.error('❌ Site yükleme hatası:', error);
             toast.error('Siteler alınırken hata oluştu!');
             setSites([]);
         }
@@ -152,12 +162,17 @@ const MaintenancePdf = () => {
     const fetchSquares = async () => {
         try {
             const response = await axios.get(`${config.apiUrl}/squares/get-all`);
-            if (response.data && response.data.data) {
-                setSquares(response.data.data);
+            console.log('🏘️ Squares response:', response.data);
+            if (response.data) {
+                setSquares(response.data);
+                console.log('✅ Adalar yüklendi:', response.data.length, 'adet');
+                console.log('İlk ada örneği:', response.data[0]);
             } else {
                 setSquares([]);
+                console.log('⚠️ Ada verisi bulunamadı');
             }
         } catch (error) {
+            console.error('❌ Ada yükleme hatası:', error);
             toast.error('Adalar alınırken hata oluştu!');
             setSquares([]);
         }
@@ -167,12 +182,17 @@ const MaintenancePdf = () => {
     const fetchBlocks = async () => {
         try {
             const response = await axios.get(`${config.apiUrl}/blocks/get-all`);
-            if (response.data && response.data.data) {
-                setBlocks(response.data.data);
+            console.log('🏗️ Blocks response:', response.data);
+            if (response.data) {
+                setBlocks(response.data);
+                console.log('✅ Bloklar yüklendi:', response.data.length, 'adet');
+                console.log('İlk blok örneği:', response.data[0]);
             } else {
                 setBlocks([]);
+                console.log('⚠️ Blok verisi bulunamadı');
             }
         } catch (error) {
+            console.error('❌ Blok yükleme hatası:', error);
             toast.error('Bloklar alınırken hata oluştu!');
             setBlocks([]);
         }
@@ -195,8 +215,8 @@ const MaintenancePdf = () => {
         setIsModalVisible(true);
         form.resetFields();
         setSelectedCustomer(null);
-        setSelectedSiteId(null); // Site ID'sini temizle
-        setFilteredDevices([]); // Cihaz listesini temizle
+        setFilteredBlocks([]);
+        setFilteredDevices([]);
         setChecklistItems([]);
         setCheckedItemsMap({});
         setImage1('');
@@ -211,8 +231,8 @@ const MaintenancePdf = () => {
         setIsModalVisible(false);
         form.resetFields();
         setSelectedCustomer(null);
-        setSelectedSiteId(null); // Site ID'sini temizle
-        setFilteredDevices([]); // Cihaz listesini temizle
+        setFilteredBlocks([]);
+        setFilteredDevices([]);
         setChecklistItems([]);
         setCheckedItemsMap({});
         setImage1('');
@@ -226,19 +246,62 @@ const MaintenancePdf = () => {
     // Müşteri seçildiğinde otomatik doldurma
     const handleCustomerChange = (customerId) => {
         const customer = customers.find(c => c.id === customerId);
+        console.log('📋 Seçilen müşteri:', customer);
+        console.log('📊 Mevcut squares:', squares.length, 'adet');
+        console.log('📊 Mevcut blocks:', blocks.length, 'adet');
+
         if (customer) {
             setSelectedCustomer(customer);
 
-            // Site ID'sini set et
-            setSelectedSiteId(customer.siteId || null);
+            // Müşterinin adı ve siteId'si
+            const siteName = customer.siteName;
+            const siteId = customer.siteId;
+            console.log('🏢 Müşteri - siteName:', siteName, ', siteId:', siteId);
 
-            // Site'ye göre cihazları filtrele
-            if (customer.siteId) {
-                const devicesForSite = siteDevices.filter(device => device.siteId === customer.siteId);
-                setFilteredDevices(devicesForSite);
+            if (siteName || siteId) {
+                // 1. siteName VEYA siteId ile eşleşen square'leri bul
+                const squaresForSite = squares.filter(sq => {
+                    // Önce siteName ile kontrol et
+                    const matchByName = sq.siteName && siteName && sq.siteName === siteName;
+                    // Sonra siteId ile kontrol et
+                    const matchById = sq.siteId && siteId && sq.siteId === siteId;
+                    const match = matchByName || matchById;
+
+                    if (match) {
+                        console.log(`✅ Eşleşen ada: ${sq.squareName} (siteName: ${sq.siteName}, siteId: ${sq.siteId})`);
+                    }
+                    return match;
+                });
+                console.log('🏘️ Bu site için bulunan adalar:', squaresForSite.length, 'adet', squaresForSite);
+
+                // 2. Bu square'lere ait tüm blokları bul
+                const squareIds = squaresForSite.map(sq => sq.id);
+                console.log('🔑 Square ID\'ler:', squareIds);
+
+                const blocksForSite = blocks.filter(block => {
+                    const match = squareIds.includes(block.squareId);
+                    if (match) {
+                        console.log(`✅ Eşleşen blok: ${block.blockName} (squareId: ${block.squareId}, squareName: ${block.squareName})`);
+                    }
+                    return match;
+                });
+                console.log('🏗️ Bu site için bulunan bloklar:', blocksForSite.length, 'adet', blocksForSite);
+
+                setFilteredBlocks(blocksForSite);
+                console.log('✅ filteredBlocks set edildi:', blocksForSite.length, 'adet');
             } else {
-                setFilteredDevices([]);
+                console.log('⚠️ Müşteri siteName ve siteId bulunamadı');
+                setFilteredBlocks([]);
             }
+
+            // Site'ye göre cihazları filtrele (siteName veya siteId üzerinden)
+            const devicesForSite = siteDevices.filter(device => {
+                const matchByName = device.siteName && siteName && device.siteName === siteName;
+                const matchById = device.siteId && siteId && device.siteId === siteId;
+                return matchByName || matchById;
+            });
+            console.log('🔧 Filtrelenen cihazlar:', devicesForSite.length, 'adet');
+            setFilteredDevices(devicesForSite);
 
             // Telefon numaralarının başına 90 ekle (eğer yoksa)
             const formatPhone = (phone) => {
@@ -257,12 +320,12 @@ const MaintenancePdf = () => {
                 email: customer.email || '',
                 blockName: undefined, // Blok seçimini temizle
                 deviceQrCode: undefined, // Cihaz seçimini temizle
-                productSerialNo: '', // Cihaz seri no temizle
-                productBrand: '', // Cihaz markası temizle
-                productModel: '', // Cihaz modeli temizle
-                productPurpose: '', // Kullanım amacı temizle
-                floor: '', // Kat temizle
-                location: '' // Lokasyon temizle
+                productSerialNo: '',
+                productBrand: '',
+                productModel: '',
+                productPurpose: '',
+                floor: '',
+                location: ''
             });
         }
     };
@@ -272,12 +335,12 @@ const MaintenancePdf = () => {
         const device = siteDevices.find(d => d.qrCode === deviceQrCode);
         if (device) {
             form.setFieldsValue({
-                productSerialNo: device.qrCode || '', // Cihaz Seri No = QR Kod
-                productBrand: device.brandName || '', // Cihaz Markası
-                productModel: device.modelName || '', // Cihaz Modeli
-                productPurpose: device.systemName || '', // Kullanım Amacı = Sistem Adı
-                floor: device.floorNumber !== null && device.floorNumber !== undefined ? device.floorNumber.toString() : '', // Bulunduğu Kat
-                location: device.location || '' // Lokasyon
+                productSerialNo: device.qrCode || '',
+                productBrand: device.brandName || '',
+                productModel: device.modelName || '',
+                productPurpose: device.systemName || '',
+                floor: device.floorNumber !== null && device.floorNumber !== undefined ? device.floorNumber.toString() : '',
+                location: device.location || ''
             });
         }
     };
@@ -442,8 +505,7 @@ const MaintenancePdf = () => {
                     else if (Array.isArray(response.fileContent)) {
                         blob = new Blob([new Uint8Array(response.fileContent)], {type: 'application/pdf'});
                         console.log('Byte array Blob oluşturuldu, size:', blob.size);
-                    }
-                    else {
+                    } else {
                         console.error('Bilinmeyen fileContent formatı:', response.fileContent);
                         toast.error('PDF formatı tanınamadı!');
                         return;
@@ -604,7 +666,7 @@ const MaintenancePdf = () => {
             });
 
             // Backend'den blob olarak dönüyor
-            const blob = new Blob([response], { type: 'application/pdf' });
+            const blob = new Blob([response], {type: 'application/pdf'});
 
             if (blob.size === 0) {
                 toast.error('Birleştirilmiş PDF boş!');
@@ -893,138 +955,135 @@ const MaintenancePdf = () => {
                                 label: 'Genel Bilgiler',
                                 children: (
                                     <div>
-                            <div style={{
-                                marginBottom: 16,
-                                padding: 12,
-                                backgroundColor: '#e6f7ff',
-                                border: '1px solid #91d5ff',
-                                borderRadius: 4
-                            }}>
-                                <strong>📋 Bilgi:</strong> Müşteri ve sistem seçtiğinizde bazı alanlar otomatik
-                                dolacaktır.
-                            </div>
+                                        <div style={{
+                                            marginBottom: 16,
+                                            padding: 12,
+                                            backgroundColor: '#e6f7ff',
+                                            border: '1px solid #91d5ff',
+                                            borderRadius: 4
+                                        }}>
+                                            <strong>📋 Bilgi:</strong> Müşteri ve sistem seçtiğinizde bazı alanlar
+                                            otomatik
+                                            dolacaktır.
+                                        </div>
 
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item
-                                        name="customerId"
-                                        label="Müşterinin Adı"
-                                        rules={[{required: true, message: 'Lütfen müşteri seçiniz!'}]}
-                                    >
-                                        <Select
-                                            placeholder="Müşteri seçiniz"
-                                            showSearch
-                                            onChange={handleCustomerChange}
-                                            filterOption={(input, option) =>
-                                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                            }
-                                        >
-                                            {customers.map(customer => (
-                                                <Select.Option key={customer.id} value={customer.id}>
-                                                    {customer.siteName}
-                                                </Select.Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item
-                                        name="customerAddress"
-                                        label="Müşterinin Adresi"
-                                    >
-                                        <Input placeholder="Adres otomatik dolacak" disabled/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                                        <Row gutter={16}>
+                                            <Col span={12}>
+                                                <Form.Item
+                                                    name="customerId"
+                                                    label="Müşterinin Adı"
+                                                    rules={[{required: true, message: 'Lütfen müşteri seçiniz!'}]}
+                                                >
+                                                    <Select
+                                                        placeholder="Müşteri seçiniz"
+                                                        showSearch
+                                                        onChange={handleCustomerChange}
+                                                        filterOption={(input, option) =>
+                                                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }
+                                                    >
+                                                        {customers.map(customer => (
+                                                            <Select.Option key={customer.id} value={customer.id}>
+                                                                {customer.siteName}
+                                                            </Select.Option>
+                                                        ))}
+                                                    </Select>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={12}>
+                                                <Form.Item
+                                                    name="customerAddress"
+                                                    label="Müşterinin Adresi"
+                                                >
+                                                    <Input placeholder="Adres otomatik dolacak" disabled/>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
 
-                            <Row gutter={16}>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="authorizedPersonnel"
-                                        label="Yetkili Kişi"
-                                    >
-                                        <Input placeholder="Otomatik dolacak" disabled/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="systemName"
-                                        label="Sistem Adı"
-                                        rules={[{required: true, message: 'Lütfen sistem seçiniz!'}]}
-                                    >
-                                        <Select
-                                            placeholder="Sistem seçiniz"
-                                            showSearch
-                                            onChange={handleSystemChange}
-                                            filterOption={(input, option) =>
-                                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                            }
-                                        >
-                                            {systems.map((systemName, index) => (
-                                                <Select.Option key={index} value={systemName}>
-                                                    {systemName}
-                                                </Select.Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="blockName"
-                                        label="Blok Adı"
-                                        rules={[{required: true, message: 'Lütfen blok seçiniz!'}]}
-                                    >
-                                        <Select
-                                            placeholder={selectedSiteId ? "Blok seçiniz" : "Önce müşteri seçiniz"}
-                                            showSearch
-                                            disabled={!selectedSiteId}
-                                            filterOption={(input, option) =>
-                                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                            }
-                                        >
-                                            {blocks
-                                                .filter(block => {
-                                                    // Block'un squareId'sini bul
-                                                    const square = squares.find(sq => sq.id === block.squareId);
-                                                    // Square'in siteId'si seçilen site'le eşleşiyor mu?
-                                                    return square && square.siteId === selectedSiteId;
-                                                })
-                                                .map(block => (
-                                                    <Select.Option key={block.id} value={block.blockName}>
-                                                        {block.blockName}
-                                                    </Select.Option>
-                                                ))}
-                                        </Select>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="authorizedPersonnel"
+                                                    label="Yetkili Kişi"
+                                                >
+                                                    <Input placeholder="Otomatik dolacak" disabled/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="systemName"
+                                                    label="Sistem Adı"
+                                                    rules={[{required: true, message: 'Lütfen sistem seçiniz!'}]}
+                                                >
+                                                    <Select
+                                                        placeholder="Sistem seçiniz"
+                                                        showSearch
+                                                        onChange={handleSystemChange}
+                                                        filterOption={(input, option) =>
+                                                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }
+                                                    >
+                                                        {systems.map((systemName, index) => (
+                                                            <Select.Option key={index} value={systemName}>
+                                                                {systemName}
+                                                            </Select.Option>
+                                                        ))}
+                                                    </Select>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="blockName"
+                                                    label="Blok Adı"
+                                                    rules={[{required: true, message: 'Lütfen blok seçiniz!'}]}
+                                                >
+                                                    <Select
+                                                        placeholder={filteredBlocks.length > 0 ? "Blok seçiniz" : "Önce müşteri seçiniz"}
+                                                        showSearch
+                                                        disabled={filteredBlocks.length === 0}
+                                                        filterOption={(input, option) =>
+                                                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }
+                                                    >
+                                                        {filteredBlocks.map(block => (
+                                                            <Select.Option key={block.id} value={block.blockName}>
+                                                                {block.blockName}
+                                                            </Select.Option>
+                                                        ))}
+                                                    </Select>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                {/* Boş kolon - Görünümü dengede tutmak için */}
+                                            </Col>
+                                        </Row>
 
-                            <Row gutter={16}>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="telNo"
-                                        label="İletişim Telefonu"
-                                    >
-                                        <Input placeholder="Otomatik dolacak" disabled/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="gsmNo"
-                                        label="GSM No."
-                                    >
-                                        <Input placeholder="Otomatik dolacak" disabled/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="email"
-                                        label="e-mail Adresi"
-                                    >
-                                        <Input placeholder="Otomatik dolacak" disabled/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="telNo"
+                                                    label="İletişim Telefonu"
+                                                >
+                                                    <Input placeholder="Otomatik dolacak" disabled/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="gsmNo"
+                                                    label="GSM No."
+                                                >
+                                                    <Input placeholder="Otomatik dolacak" disabled/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="email"
+                                                    label="e-mail Adresi"
+                                                >
+                                                    <Input placeholder="Otomatik dolacak" disabled/>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
                                     </div>
                                 )
                             },
@@ -1033,111 +1092,124 @@ const MaintenancePdf = () => {
                                 label: 'Cihaz Bilgileri',
                                 children: (
                                     <div>
-                            <Row gutter={16} style={{ marginBottom: 16, backgroundColor: '#e6f7ff', padding: '12px', borderRadius: '4px' }}>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name="deviceQrCode"
-                                        label="Cihaz Seç (Otomatik Doldurma)"
-                                        tooltip="Seçili siteye ait cihazları listeler. Cihaz seçtiğinizde bilgiler otomatik doldurulur."
-                                    >
-                                        <Select
-                                            placeholder={selectedSiteId ? "Cihaz seçiniz..." : "Önce müşteri seçiniz"}
-                                            showSearch
-                                            allowClear
-                                            disabled={!selectedSiteId || filteredDevices.length === 0}
-                                            onChange={handleDeviceChange}
-                                            filterOption={(input, option) =>
-                                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                            }
-                                        >
-                                            {filteredDevices.map(device => (
-                                                <Select.Option key={device.id} value={device.qrCode}>
-                                                    {device.qrCode} - {device.productName} ({device.systemName})
-                                                </Select.Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                    {filteredDevices.length === 0 && selectedSiteId && (
-                                        <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-16px' }}>
-                                            ℹ️ Bu site için kayıtlı cihaz bulunamadı. Aşağıdaki alanları manuel olarak doldurunuz.
-                                        </div>
-                                    )}
-                                </Col>
-                            </Row>
+                                        <Row gutter={16} style={{
+                                            marginBottom: 16,
+                                            backgroundColor: '#e6f7ff',
+                                            padding: '12px',
+                                            borderRadius: '4px'
+                                        }}>
+                                            <Col span={24}>
+                                                <Form.Item
+                                                    name="deviceQrCode"
+                                                    label="Cihaz Seç (Otomatik Doldurma)"
+                                                    tooltip="Seçili siteye ait cihazları listeler. Cihaz seçtiğinizde bilgiler otomatik doldurulur."
+                                                >
+                                                    <Select
+                                                        placeholder={filteredDevices.length > 0 ? "Cihaz seçiniz..." : "Önce müşteri seçiniz"}
+                                                        showSearch
+                                                        allowClear
+                                                        disabled={filteredDevices.length === 0}
+                                                        onChange={handleDeviceChange}
+                                                        filterOption={(input, option) =>
+                                                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }
+                                                    >
+                                                        {filteredDevices.map(device => (
+                                                            <Select.Option key={device.id} value={device.qrCode}>
+                                                                {device.qrCode} - {device.productName} ({device.systemName})
+                                                            </Select.Option>
+                                                        ))}
+                                                    </Select>
+                                                </Form.Item>
+                                                {filteredDevices.length === 0 && selectedCustomer && (
+                                                    <div style={{
+                                                        color: '#ff4d4f',
+                                                        fontSize: '12px',
+                                                        marginTop: '-16px'
+                                                    }}>
+                                                        ℹ️ Bu site için kayıtlı cihaz bulunamadı. Aşağıdaki alanları
+                                                        manuel olarak doldurunuz.
+                                                    </div>
+                                                )}
+                                            </Col>
+                                        </Row>
 
-                            <Divider>Cihaz Detay Bilgileri</Divider>
+                                        <Divider>Cihaz Detay Bilgileri</Divider>
 
-                            <Row gutter={16}>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="productSerialNo"
-                                        label="Cihaz Seri No."
-                                        rules={[{required: true, message: 'Lütfen cihaz seri no giriniz!'}]}
-                                    >
-                                        <Input placeholder="Örn: Hv-12345-ABC"/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="productBrand"
-                                        label="Cihaz Markası"
-                                        rules={[{required: true, message: 'Lütfen cihaz markası giriniz!'}]}
-                                    >
-                                        <Input placeholder="Örn: WILO"/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="productModel"
-                                        label="Cihaz Modeli"
-                                        rules={[{required: true, message: 'Lütfen cihaz modeli giriniz!'}]}
-                                    >
-                                        <Input placeholder="Örn: Wilo 523"/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="productSerialNo"
+                                                    label="Cihaz Seri No."
+                                                    rules={[{required: true, message: 'Lütfen cihaz seri no giriniz!'}]}
+                                                >
+                                                    <Input placeholder="Örn: Hv-12345-ABC"/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="productBrand"
+                                                    label="Cihaz Markası"
+                                                    rules={[{required: true, message: 'Lütfen cihaz markası giriniz!'}]}
+                                                >
+                                                    <Input placeholder="Örn: WILO"/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="productModel"
+                                                    label="Cihaz Modeli"
+                                                    rules={[{required: true, message: 'Lütfen cihaz modeli giriniz!'}]}
+                                                >
+                                                    <Input placeholder="Örn: Wilo 523"/>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
 
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item
-                                        name="productPurpose"
-                                        label="Cihazın Kullanım Amacı"
-                                        rules={[{required: true, message: 'Lütfen kullanım amacı giriniz!'}]}
-                                    >
-                                        <Input placeholder="Örn: Yangın Pompası"/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item
-                                        name="serviceCase"
-                                        label="Hizmet Koşulu"
-                                        rules={[{required: true, message: 'Lütfen hizmet koşulu giriniz!'}]}
-                                    >
-                                        <Input placeholder="Hizmet koşulu"/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                                        <Row gutter={16}>
+                                            <Col span={12}>
+                                                <Form.Item
+                                                    name="productPurpose"
+                                                    label="Cihazın Kullanım Amacı"
+                                                    rules={[{
+                                                        required: true,
+                                                        message: 'Lütfen kullanım amacı giriniz!'
+                                                    }]}
+                                                >
+                                                    <Input placeholder="Örn: Yangın Pompası"/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={12}>
+                                                <Form.Item
+                                                    name="serviceCase"
+                                                    label="Hizmet Koşulu"
+                                                    rules={[{required: true, message: 'Lütfen hizmet koşulu giriniz!'}]}
+                                                >
+                                                    <Input placeholder="Hizmet koşulu"/>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
 
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item
-                                        name="floor"
-                                        label="Bulunduğu Kat"
-                                        rules={[{required: true, message: 'Lütfen kat bilgisi giriniz!'}]}
-                                    >
-                                        <Input placeholder="Örn: -1"/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item
-                                        name="location"
-                                        label="Lokasyon"
-                                        rules={[{required: true, message: 'Lütfen lokasyon giriniz!'}]}
-                                    >
-                                        <Input placeholder="Örn: 3.kat makine dairesi"/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                                        <Row gutter={16}>
+                                            <Col span={12}>
+                                                <Form.Item
+                                                    name="floor"
+                                                    label="Bulunduğu Kat"
+                                                    rules={[{required: true, message: 'Lütfen kat bilgisi giriniz!'}]}
+                                                >
+                                                    <Input placeholder="Örn: -1"/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={12}>
+                                                <Form.Item
+                                                    name="location"
+                                                    label="Lokasyon"
+                                                    rules={[{required: true, message: 'Lütfen lokasyon giriniz!'}]}
+                                                >
+                                                    <Input placeholder="Örn: 3.kat makine dairesi"/>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
                                     </div>
                                 )
                             },
@@ -1146,199 +1218,199 @@ const MaintenancePdf = () => {
                                 label: 'Servis Bilgileri',
                                 children: (
                                     <div>
-                            <Row gutter={16}>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="serviceDate"
-                                        label="Servis Tarihi"
-                                        rules={[{required: true, message: 'Lütfen servis tarihi seçiniz!'}]}
-                                    >
-                                        <DatePicker style={{width: '100%'}} format="DD/MM/YYYY"/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="entryTime"
-                                        label="Giriş Saati"
-                                        rules={[{required: true, message: 'Lütfen giriş saati giriniz!'}]}
-                                    >
-                                        <Input placeholder="Örn: 21:15"/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="exitTime"
-                                        label="Çıkış Saati"
-                                        rules={[{required: true, message: 'Lütfen çıkış saati giriniz!'}]}
-                                    >
-                                        <Input placeholder="Örn: 22:15"/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-
-                            <Row gutter={16}>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="serviceCarPlate"
-                                        label="Servis Araç Plakası"
-                                        rules={[{required: true, message: 'Lütfen araç plakası giriniz!'}]}
-                                    >
-                                        <Input placeholder="Örn: 32 KM 34"/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="serviceCarKm"
-                                        label="Araç Km."
-                                        rules={[{required: true, message: 'Lütfen araç km giriniz!'}]}
-                                    >
-                                        <Input placeholder="Örn: 22.500 km"/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item
-                                        name="servicePersonnel"
-                                        label="Servis Teknisyeni"
-                                        rules={[{required: true, message: 'Lütfen teknisyen adı giriniz!'}]}
-                                    >
-                                        <Input placeholder="Örn: Ahmet"/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-
-                            <Form.Item
-                                name="description"
-                                label="Açıklama"
-                            >
-                                <TextArea
-                                    rows={4}
-                                    placeholder="Servis hakkında açıklama ekleyebilirsiniz"
-                                />
-                            </Form.Item>
-
-                            <Divider>Fotoğraflar</Divider>
-
-                            <Row gutter={16}>
-                                <Col span={8}>
-                                    <Form.Item label="Fotoğraf 1">
-                                        <Upload
-                                            beforeUpload={(file) => handleImageUpload(file, 1)}
-                                            showUploadList={false}
-                                            accept="image/*"
-                                        >
-                                            <Button icon={<UploadOutlined/>} block>
-                                                Fotoğraf Seç
-                                            </Button>
-                                        </Upload>
-                                        {imagePreview1 && (
-                                            <div style={{marginTop: 8, position: 'relative'}}>
-                                                <img
-                                                    src={imagePreview1}
-                                                    alt="Fotoğraf 1"
-                                                    style={{
-                                                        width: '100%',
-                                                        maxHeight: '200px',
-                                                        objectFit: 'cover',
-                                                        border: '1px solid #d9d9d9',
-                                                        borderRadius: '4px'
-                                                    }}
-                                                />
-                                                <Button
-                                                    danger
-                                                    size="small"
-                                                    style={{marginTop: 8, width: '100%'}}
-                                                    onClick={() => {
-                                                        setImage1('');
-                                                        setImagePreview1(null);
-                                                    }}
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="serviceDate"
+                                                    label="Servis Tarihi"
+                                                    rules={[{required: true, message: 'Lütfen servis tarihi seçiniz!'}]}
                                                 >
-                                                    Sil
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </Form.Item>
-                                </Col>
-
-                                <Col span={8}>
-                                    <Form.Item label="Fotoğraf 2">
-                                        <Upload
-                                            beforeUpload={(file) => handleImageUpload(file, 2)}
-                                            showUploadList={false}
-                                            accept="image/*"
-                                        >
-                                            <Button icon={<UploadOutlined/>} block>
-                                                Fotoğraf Seç
-                                            </Button>
-                                        </Upload>
-                                        {imagePreview2 && (
-                                            <div style={{marginTop: 8, position: 'relative'}}>
-                                                <img
-                                                    src={imagePreview2}
-                                                    alt="Fotoğraf 2"
-                                                    style={{
-                                                        width: '100%',
-                                                        maxHeight: '200px',
-                                                        objectFit: 'cover',
-                                                        border: '1px solid #d9d9d9',
-                                                        borderRadius: '4px'
-                                                    }}
-                                                />
-                                                <Button
-                                                    danger
-                                                    size="small"
-                                                    style={{marginTop: 8, width: '100%'}}
-                                                    onClick={() => {
-                                                        setImage2('');
-                                                        setImagePreview2(null);
-                                                    }}
+                                                    <DatePicker style={{width: '100%'}} format="DD/MM/YYYY"/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="entryTime"
+                                                    label="Giriş Saati"
+                                                    rules={[{required: true, message: 'Lütfen giriş saati giriniz!'}]}
                                                 >
-                                                    Sil
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </Form.Item>
-                                </Col>
-
-                                <Col span={8}>
-                                    <Form.Item label="Fotoğraf 3">
-                                        <Upload
-                                            beforeUpload={(file) => handleImageUpload(file, 3)}
-                                            showUploadList={false}
-                                            accept="image/*"
-                                        >
-                                            <Button icon={<UploadOutlined/>} block>
-                                                Fotoğraf Seç
-                                            </Button>
-                                        </Upload>
-                                        {imagePreview3 && (
-                                            <div style={{marginTop: 8, position: 'relative'}}>
-                                                <img
-                                                    src={imagePreview3}
-                                                    alt="Fotoğraf 3"
-                                                    style={{
-                                                        width: '100%',
-                                                        maxHeight: '200px',
-                                                        objectFit: 'cover',
-                                                        border: '1px solid #d9d9d9',
-                                                        borderRadius: '4px'
-                                                    }}
-                                                />
-                                                <Button
-                                                    danger
-                                                    size="small"
-                                                    style={{marginTop: 8, width: '100%'}}
-                                                    onClick={() => {
-                                                        setImage3('');
-                                                        setImagePreview3(null);
-                                                    }}
+                                                    <Input placeholder="Örn: 21:15"/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="exitTime"
+                                                    label="Çıkış Saati"
+                                                    rules={[{required: true, message: 'Lütfen çıkış saati giriniz!'}]}
                                                 >
-                                                    Sil
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                                                    <Input placeholder="Örn: 22:15"/>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="serviceCarPlate"
+                                                    label="Servis Araç Plakası"
+                                                    rules={[{required: true, message: 'Lütfen araç plakası giriniz!'}]}
+                                                >
+                                                    <Input placeholder="Örn: 32 KM 34"/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="serviceCarKm"
+                                                    label="Araç Km."
+                                                    rules={[{required: true, message: 'Lütfen araç km giriniz!'}]}
+                                                >
+                                                    <Input placeholder="Örn: 22.500 km"/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="servicePersonnel"
+                                                    label="Servis Teknisyeni"
+                                                    rules={[{required: true, message: 'Lütfen teknisyen adı giriniz!'}]}
+                                                >
+                                                    <Input placeholder="Örn: Ahmet"/>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+
+                                        <Form.Item
+                                            name="description"
+                                            label="Açıklama"
+                                        >
+                                            <TextArea
+                                                rows={4}
+                                                placeholder="Servis hakkında açıklama ekleyebilirsiniz"
+                                            />
+                                        </Form.Item>
+
+                                        <Divider>Fotoğraflar</Divider>
+
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <Form.Item label="Fotoğraf 1">
+                                                    <Upload
+                                                        beforeUpload={(file) => handleImageUpload(file, 1)}
+                                                        showUploadList={false}
+                                                        accept="image/*"
+                                                    >
+                                                        <Button icon={<UploadOutlined/>} block>
+                                                            Fotoğraf Seç
+                                                        </Button>
+                                                    </Upload>
+                                                    {imagePreview1 && (
+                                                        <div style={{marginTop: 8, position: 'relative'}}>
+                                                            <img
+                                                                src={imagePreview1}
+                                                                alt="Fotoğraf 1"
+                                                                style={{
+                                                                    width: '100%',
+                                                                    maxHeight: '200px',
+                                                                    objectFit: 'cover',
+                                                                    border: '1px solid #d9d9d9',
+                                                                    borderRadius: '4px'
+                                                                }}
+                                                            />
+                                                            <Button
+                                                                danger
+                                                                size="small"
+                                                                style={{marginTop: 8, width: '100%'}}
+                                                                onClick={() => {
+                                                                    setImage1('');
+                                                                    setImagePreview1(null);
+                                                                }}
+                                                            >
+                                                                Sil
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item label="Fotoğraf 2">
+                                                    <Upload
+                                                        beforeUpload={(file) => handleImageUpload(file, 2)}
+                                                        showUploadList={false}
+                                                        accept="image/*"
+                                                    >
+                                                        <Button icon={<UploadOutlined/>} block>
+                                                            Fotoğraf Seç
+                                                        </Button>
+                                                    </Upload>
+                                                    {imagePreview2 && (
+                                                        <div style={{marginTop: 8, position: 'relative'}}>
+                                                            <img
+                                                                src={imagePreview2}
+                                                                alt="Fotoğraf 2"
+                                                                style={{
+                                                                    width: '100%',
+                                                                    maxHeight: '200px',
+                                                                    objectFit: 'cover',
+                                                                    border: '1px solid #d9d9d9',
+                                                                    borderRadius: '4px'
+                                                                }}
+                                                            />
+                                                            <Button
+                                                                danger
+                                                                size="small"
+                                                                style={{marginTop: 8, width: '100%'}}
+                                                                onClick={() => {
+                                                                    setImage2('');
+                                                                    setImagePreview2(null);
+                                                                }}
+                                                            >
+                                                                Sil
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item label="Fotoğraf 3">
+                                                    <Upload
+                                                        beforeUpload={(file) => handleImageUpload(file, 3)}
+                                                        showUploadList={false}
+                                                        accept="image/*"
+                                                    >
+                                                        <Button icon={<UploadOutlined/>} block>
+                                                            Fotoğraf Seç
+                                                        </Button>
+                                                    </Upload>
+                                                    {imagePreview3 && (
+                                                        <div style={{marginTop: 8, position: 'relative'}}>
+                                                            <img
+                                                                src={imagePreview3}
+                                                                alt="Fotoğraf 3"
+                                                                style={{
+                                                                    width: '100%',
+                                                                    maxHeight: '200px',
+                                                                    objectFit: 'cover',
+                                                                    border: '1px solid #d9d9d9',
+                                                                    borderRadius: '4px'
+                                                                }}
+                                                            />
+                                                            <Button
+                                                                danger
+                                                                size="small"
+                                                                style={{marginTop: 8, width: '100%'}}
+                                                                onClick={() => {
+                                                                    setImage3('');
+                                                                    setImagePreview3(null);
+                                                                }}
+                                                            >
+                                                                Sil
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
                                     </div>
                                 )
                             },
@@ -1347,146 +1419,159 @@ const MaintenancePdf = () => {
                                 label: 'Periyodik Bakım Çeklisti',
                                 children: (
                                     <div>
-                            {checklistItems.length > 0 ? (
-                                <div>
-                                    <div style={{maxHeight: '500px', overflowY: 'auto', border: '1px solid #d9d9d9'}}>
-                                        <table style={{width: '100%', borderCollapse: 'collapse'}}>
-                                            <thead style={{position: 'sticky', top: 0, backgroundColor: '#f0f0f0', zIndex: 1}}>
-                                            <tr>
-                                                <th style={{
-                                                    border: '1px solid #d9d9d9',
-                                                    padding: '12px 8px',
-                                                    textAlign: 'center',
-                                                    width: '60px',
-                                                    fontWeight: 'bold'
+                                        {checklistItems.length > 0 ? (
+                                            <div>
+                                                <div style={{
+                                                    maxHeight: '500px',
+                                                    overflowY: 'auto',
+                                                    border: '1px solid #d9d9d9'
                                                 }}>
-                                                    Kontrol Sıra No
-                                                </th>
-                                                <th style={{
-                                                    border: '1px solid #d9d9d9',
-                                                    padding: '12px 8px',
-                                                    textAlign: 'left',
-                                                    width: '150px',
-                                                    fontWeight: 'bold'
-                                                }}>
-                                                    Sistem Adı
-                                                </th>
-                                                <th style={{
-                                                    border: '1px solid #d9d9d9',
-                                                    padding: '12px 8px',
-                                                    textAlign: 'left',
-                                                    fontWeight: 'bold'
-                                                }}>
-                                                    Açıklama
-                                                </th>
-                                                <th style={{
-                                                    border: '1px solid #d9d9d9',
-                                                    padding: '12px 8px',
-                                                    textAlign: 'center',
-                                                    width: '100px',
-                                                    fontWeight: 'bold',
-                                                    backgroundColor: '#f6ffed'
-                                                }}>
-                                                    EVET
-                                                </th>
-                                                <th style={{
-                                                    border: '1px solid #d9d9d9',
-                                                    padding: '12px 8px',
-                                                    textAlign: 'center',
-                                                    width: '100px',
-                                                    fontWeight: 'bold',
-                                                    backgroundColor: '#fff1f0'
-                                                }}>
-                                                    HAYIR
-                                                </th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {checklistItems
-                                                .sort((a, b) => (a.controlPointOrder || 0) - (b.controlPointOrder || 0))
-                                                .map((item, index) => (
-                                                <tr key={item.controlPointOrder || item.id || index}
-                                                    style={{
-                                                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafafa'
-                                                    }}>
-                                                    <td style={{
-                                                        border: '1px solid #d9d9d9',
-                                                        padding: '10px 8px',
-                                                        textAlign: 'center',
-                                                        fontWeight: '500',
-                                                        color: '#666'
-                                                    }}>
-                                                        {item.controlPointOrder || (index + 1)}
-                                                    </td>
-                                                    <td style={{
-                                                        border: '1px solid #d9d9d9',
-                                                        padding: '10px 12px',
-                                                        fontWeight: '500',
-                                                        color: '#1890ff'
-                                                    }}>
-                                                        {item.systemName || '-'}
-                                                    </td>
-                                                    <td style={{
-                                                        border: '1px solid #d9d9d9',
-                                                        padding: '10px 12px',
-                                                        lineHeight: '1.6'
-                                                    }}>
-                                                        {item.description || '-'}
-                                                    </td>
-                                                    <td style={{
-                                                        border: '1px solid #d9d9d9',
-                                                        padding: '10px 8px',
-                                                        textAlign: 'center',
-                                                        backgroundColor: checkedItemsMap[item.controlPointOrder] === true ? '#f6ffed' : 'transparent'
-                                                    }}>
-                                                        <input
-                                                            type="radio"
-                                                            name={`checklist-${item.controlPointOrder || item.id || index}`}
-                                                            checked={checkedItemsMap[item.controlPointOrder] === true}
-                                                            onChange={() => handleChecklistChange(item.controlPointOrder, true)}
-                                                            style={{
-                                                                cursor: 'pointer',
-                                                                width: '18px',
-                                                                height: '18px'
-                                                            }}
-                                                        />
-                                                    </td>
-                                                    <td style={{
-                                                        border: '1px solid #d9d9d9',
-                                                        padding: '10px 8px',
-                                                        textAlign: 'center',
-                                                        backgroundColor: checkedItemsMap[item.controlPointOrder] === false ? '#fff1f0' : 'transparent'
-                                                    }}>
-                                                        <input
-                                                            type="radio"
-                                                            name={`checklist-${item.controlPointOrder || item.id || index}`}
-                                                            checked={checkedItemsMap[item.controlPointOrder] === false}
-                                                            onChange={() => handleChecklistChange(item.controlPointOrder, false)}
-                                                            style={{
-                                                                cursor: 'pointer',
-                                                                width: '18px',
-                                                                height: '18px'
-                                                            }}
-                                                        />
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div style={{textAlign: 'center', padding: '60px 40px', color: '#999'}}>
-                                    <FileTextOutlined style={{fontSize: '64px', marginBottom: '16px', color: '#d9d9d9'}}/>
-                                    <h3 style={{color: '#666', marginBottom: '8px'}}>Checklist Maddesi Bulunamadı</h3>
-                                    <p style={{fontSize: '14px'}}>
-                                        Yukarıdan bir sistem seçtiğinizde, o sisteme ait checklist maddeleri burada görünecektir.
-                                    </p>
-                                    <p style={{fontSize: '12px', color: '#bbb', marginTop: '16px'}}>
-                                        Not: Sadece aktif ve checklist olarak işaretlenmiş maddeler gösterilir.
-                                    </p>
-                                </div>
-                            )}
+                                                    <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                                                        <thead style={{
+                                                            position: 'sticky',
+                                                            top: 0,
+                                                            backgroundColor: '#f0f0f0',
+                                                            zIndex: 1
+                                                        }}>
+                                                        <tr>
+                                                            <th style={{
+                                                                border: '1px solid #d9d9d9',
+                                                                padding: '12px 8px',
+                                                                textAlign: 'center',
+                                                                width: '60px',
+                                                                fontWeight: 'bold'
+                                                            }}>
+                                                                Kontrol Sıra No
+                                                            </th>
+                                                            <th style={{
+                                                                border: '1px solid #d9d9d9',
+                                                                padding: '12px 8px',
+                                                                textAlign: 'left',
+                                                                width: '150px',
+                                                                fontWeight: 'bold'
+                                                            }}>
+                                                                Sistem Adı
+                                                            </th>
+                                                            <th style={{
+                                                                border: '1px solid #d9d9d9',
+                                                                padding: '12px 8px',
+                                                                textAlign: 'left',
+                                                                fontWeight: 'bold'
+                                                            }}>
+                                                                Açıklama
+                                                            </th>
+                                                            <th style={{
+                                                                border: '1px solid #d9d9d9',
+                                                                padding: '12px 8px',
+                                                                textAlign: 'center',
+                                                                width: '100px',
+                                                                fontWeight: 'bold',
+                                                                backgroundColor: '#f6ffed'
+                                                            }}>
+                                                                EVET
+                                                            </th>
+                                                            <th style={{
+                                                                border: '1px solid #d9d9d9',
+                                                                padding: '12px 8px',
+                                                                textAlign: 'center',
+                                                                width: '100px',
+                                                                fontWeight: 'bold',
+                                                                backgroundColor: '#fff1f0'
+                                                            }}>
+                                                                HAYIR
+                                                            </th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        {checklistItems
+                                                            .sort((a, b) => (a.controlPointOrder || 0) - (b.controlPointOrder || 0))
+                                                            .map((item, index) => (
+                                                                <tr key={item.controlPointOrder || item.id || index}
+                                                                    style={{
+                                                                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafafa'
+                                                                    }}>
+                                                                    <td style={{
+                                                                        border: '1px solid #d9d9d9',
+                                                                        padding: '10px 8px',
+                                                                        textAlign: 'center',
+                                                                        fontWeight: '500',
+                                                                        color: '#666'
+                                                                    }}>
+                                                                        {item.controlPointOrder || (index + 1)}
+                                                                    </td>
+                                                                    <td style={{
+                                                                        border: '1px solid #d9d9d9',
+                                                                        padding: '10px 12px',
+                                                                        fontWeight: '500',
+                                                                        color: '#1890ff'
+                                                                    }}>
+                                                                        {item.systemName || '-'}
+                                                                    </td>
+                                                                    <td style={{
+                                                                        border: '1px solid #d9d9d9',
+                                                                        padding: '10px 12px',
+                                                                        lineHeight: '1.6'
+                                                                    }}>
+                                                                        {item.description || '-'}
+                                                                    </td>
+                                                                    <td style={{
+                                                                        border: '1px solid #d9d9d9',
+                                                                        padding: '10px 8px',
+                                                                        textAlign: 'center',
+                                                                        backgroundColor: checkedItemsMap[item.controlPointOrder] === true ? '#f6ffed' : 'transparent'
+                                                                    }}>
+                                                                        <input
+                                                                            type="radio"
+                                                                            name={`checklist-${item.controlPointOrder || item.id || index}`}
+                                                                            checked={checkedItemsMap[item.controlPointOrder] === true}
+                                                                            onChange={() => handleChecklistChange(item.controlPointOrder, true)}
+                                                                            style={{
+                                                                                cursor: 'pointer',
+                                                                                width: '18px',
+                                                                                height: '18px'
+                                                                            }}
+                                                                        />
+                                                                    </td>
+                                                                    <td style={{
+                                                                        border: '1px solid #d9d9d9',
+                                                                        padding: '10px 8px',
+                                                                        textAlign: 'center',
+                                                                        backgroundColor: checkedItemsMap[item.controlPointOrder] === false ? '#fff1f0' : 'transparent'
+                                                                    }}>
+                                                                        <input
+                                                                            type="radio"
+                                                                            name={`checklist-${item.controlPointOrder || item.id || index}`}
+                                                                            checked={checkedItemsMap[item.controlPointOrder] === false}
+                                                                            onChange={() => handleChecklistChange(item.controlPointOrder, false)}
+                                                                            style={{
+                                                                                cursor: 'pointer',
+                                                                                width: '18px',
+                                                                                height: '18px'
+                                                                            }}
+                                                                        />
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div style={{textAlign: 'center', padding: '60px 40px', color: '#999'}}>
+                                                <FileTextOutlined
+                                                    style={{fontSize: '64px', marginBottom: '16px', color: '#d9d9d9'}}/>
+                                                <h3 style={{color: '#666', marginBottom: '8px'}}>Checklist Maddesi
+                                                    Bulunamadı</h3>
+                                                <p style={{fontSize: '14px'}}>
+                                                    Yukarıdan bir sistem seçtiğinizde, o sisteme ait checklist maddeleri
+                                                    burada görünecektir.
+                                                </p>
+                                                <p style={{fontSize: '12px', color: '#bbb', marginTop: '16px'}}>
+                                                    Not: Sadece aktif ve checklist olarak işaretlenmiş maddeler
+                                                    gösterilir.
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 )
                             }
