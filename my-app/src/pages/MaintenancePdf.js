@@ -43,6 +43,11 @@ const MaintenancePdf = () => {
     const [siteDevices, setSiteDevices] = useState([]);
     const [filteredDevices, setFilteredDevices] = useState([]);
 
+    // Tab 2 - Cihaz Bilgileri için state'ler
+    const [blockNamesForSite, setBlockNamesForSite] = useState([]);
+    const [selectedBlockName, setSelectedBlockName] = useState(null);
+    const [selectedDeviceData, setSelectedDeviceData] = useState(null);
+
     // AŞAMA 2 - Fotoğraf upload state'leri
     const [image1, setImage1] = useState('');
     const [image2, setImage2] = useState('');
@@ -211,12 +216,34 @@ const MaintenancePdf = () => {
         }
     };
 
+    // Site adına göre blok adlarını getir
+    const fetchBlockNames = async (siteName) => {
+        if (!siteName) {
+            setBlockNamesForSite([]);
+            return;
+        }
+
+        try {
+            const response = await axios.get(`${config.apiUrl}/blocks/by-site-name/${encodeURIComponent(siteName)}`);
+            const blockNames = response.data || [];
+            console.log('📦 Blok adları yüklendi:', blockNames);
+            setBlockNamesForSite(blockNames);
+        } catch (error) {
+            console.error('❌ Blok adları alınırken hata:', error);
+            toast.error('Blok adları alınırken hata oluştu!');
+            setBlockNamesForSite([]);
+        }
+    };
+
     const showModal = () => {
         setIsModalVisible(true);
         form.resetFields();
         setSelectedCustomer(null);
         setFilteredBlocks([]);
         setFilteredDevices([]);
+        setBlockNamesForSite([]);
+        setSelectedBlockName(null);
+        setSelectedDeviceData(null);
         setChecklistItems([]);
         setCheckedItemsMap({});
         setImage1('');
@@ -233,6 +260,9 @@ const MaintenancePdf = () => {
         setSelectedCustomer(null);
         setFilteredBlocks([]);
         setFilteredDevices([]);
+        setBlockNamesForSite([]);
+        setSelectedBlockName(null);
+        setSelectedDeviceData(null);
         setChecklistItems([]);
         setCheckedItemsMap({});
         setImage1('');
@@ -257,6 +287,13 @@ const MaintenancePdf = () => {
             const siteName = customer.siteName;
             const siteId = customer.siteId;
             console.log('🏢 Müşteri - siteName:', siteName, ', siteId:', siteId);
+
+            // Site adına göre blok adlarını getir (Tab 2 için)
+            if (siteName) {
+                fetchBlockNames(siteName);
+            } else {
+                setBlockNamesForSite([]);
+            }
 
             if (siteName || siteId) {
                 // 1. siteName VEYA siteId ile eşleşen square'leri bul
@@ -318,6 +355,8 @@ const MaintenancePdf = () => {
                 gsmNo: formatPhone(customer.gsm),
                 fax: customer.fax ? formatPhone(customer.fax) : '',
                 email: customer.email || '',
+                taxOffice: customer.taxOffice || '',
+                taxNumber: customer.taxNumber || '',
                 blockName: undefined, // Blok seçimini temizle
                 deviceQrCode: undefined, // Cihaz seçimini temizle
                 productSerialNo: '',
@@ -334,13 +373,50 @@ const MaintenancePdf = () => {
     const handleDeviceChange = (deviceQrCode) => {
         const device = siteDevices.find(d => d.qrCode === deviceQrCode);
         if (device) {
+            setSelectedDeviceData(device);
             form.setFieldsValue({
                 productSerialNo: device.qrCode || '',
                 productBrand: device.brandName || '',
                 productModel: device.modelName || '',
-                productPurpose: device.systemName || '',
+                productPurpose: device.categoryName || '',
+                systemName: device.systemName || '',
                 floor: device.floorNumber !== null && device.floorNumber !== undefined ? device.floorNumber.toString() : '',
-                location: device.location || ''
+                location: device.location || '',
+                serviceCase: '' // Hizmet koşulu - şu an boş
+            });
+        }
+    };
+
+    // Blok seçildiğinde cihazları filtrele
+    const handleBlockChange = (blockName) => {
+        setSelectedBlockName(blockName);
+
+        if (blockName && selectedCustomer) {
+            const siteName = selectedCustomer.siteName;
+            const siteId = selectedCustomer.siteId;
+
+            // Hem site hem blok adına göre filtrele
+            const devicesForBlock = siteDevices.filter(device => {
+                const matchSite = (device.siteName && siteName && device.siteName === siteName) ||
+                                (device.siteId && siteId && device.siteId === siteId);
+                const matchBlock = device.blockName === blockName;
+                return matchSite && matchBlock;
+            });
+
+            console.log('🏗️ Seçilen blok için cihazlar:', devicesForBlock.length, 'adet');
+            setFilteredDevices(devicesForBlock);
+
+            // Cihaz seçimini temizle
+            form.setFieldsValue({
+                deviceQrCode: undefined,
+                productSerialNo: '',
+                productBrand: '',
+                productModel: '',
+                productPurpose: '',
+                systemName: '',
+                floor: '',
+                location: '',
+                serviceCase: ''
             });
         }
     };
@@ -962,9 +1038,7 @@ const MaintenancePdf = () => {
                                             border: '1px solid #91d5ff',
                                             borderRadius: 4
                                         }}>
-                                            <strong>📋 Bilgi:</strong> Müşteri ve sistem seçtiğinizde bazı alanlar
-                                            otomatik
-                                            dolacaktır.
+                                            <strong>📋 Bilgi:</strong> Müşteri seçtiğinizde bazı alanlar otomatik dolacaktır.
                                         </div>
 
                                         <Row gutter={16}>
@@ -1011,56 +1085,6 @@ const MaintenancePdf = () => {
                                             </Col>
                                             <Col span={8}>
                                                 <Form.Item
-                                                    name="systemName"
-                                                    label="Sistem Adı"
-                                                    rules={[{required: true, message: 'Lütfen sistem seçiniz!'}]}
-                                                >
-                                                    <Select
-                                                        placeholder="Sistem seçiniz"
-                                                        showSearch
-                                                        onChange={handleSystemChange}
-                                                        filterOption={(input, option) =>
-                                                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                        }
-                                                    >
-                                                        {systems.map((systemName, index) => (
-                                                            <Select.Option key={index} value={systemName}>
-                                                                {systemName}
-                                                            </Select.Option>
-                                                        ))}
-                                                    </Select>
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={8}>
-                                                <Form.Item
-                                                    name="blockName"
-                                                    label="Blok Adı"
-                                                    rules={[{required: true, message: 'Lütfen blok seçiniz!'}]}
-                                                >
-                                                    <Select
-                                                        placeholder={filteredBlocks.length > 0 ? "Blok seçiniz" : "Önce müşteri seçiniz"}
-                                                        showSearch
-                                                        disabled={filteredBlocks.length === 0}
-                                                        filterOption={(input, option) =>
-                                                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                        }
-                                                    >
-                                                        {filteredBlocks.map(block => (
-                                                            <Select.Option key={block.id} value={block.blockName}>
-                                                                {block.blockName}
-                                                            </Select.Option>
-                                                        ))}
-                                                    </Select>
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={8}>
-                                                {/* Boş kolon - Görünümü dengede tutmak için */}
-                                            </Col>
-                                        </Row>
-
-                                        <Row gutter={16}>
-                                            <Col span={8}>
-                                                <Form.Item
                                                     name="telNo"
                                                     label="İletişim Telefonu"
                                                 >
@@ -1075,10 +1099,29 @@ const MaintenancePdf = () => {
                                                     <Input placeholder="Otomatik dolacak" disabled/>
                                                 </Form.Item>
                                             </Col>
+                                        </Row>
+
+                                        <Row gutter={16}>
                                             <Col span={8}>
                                                 <Form.Item
                                                     name="email"
                                                     label="e-mail Adresi"
+                                                >
+                                                    <Input placeholder="Otomatik dolacak" disabled/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="taxOffice"
+                                                    label="Vergi Dairesi"
+                                                >
+                                                    <Input placeholder="Otomatik dolacak" disabled/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="taxNumber"
+                                                    label="Vergi No"
                                                 >
                                                     <Input placeholder="Otomatik dolacak" disabled/>
                                                 </Form.Item>
@@ -1092,47 +1135,98 @@ const MaintenancePdf = () => {
                                 label: 'Cihaz Bilgileri',
                                 children: (
                                     <div>
-                                        <Row gutter={16} style={{
-                                            marginBottom: 16,
-                                            backgroundColor: '#e6f7ff',
-                                            padding: '12px',
-                                            borderRadius: '4px'
+                                        {/* Seçim Alanları */}
+                                        <div style={{
+                                            marginBottom: 24,
+                                            padding: 16,
+                                            backgroundColor: '#f0f5ff',
+                                            border: '1px solid #adc6ff',
+                                            borderRadius: '8px'
                                         }}>
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    name="deviceQrCode"
-                                                    label="Cihaz Seç (Otomatik Doldurma)"
-                                                    tooltip="Seçili siteye ait cihazları listeler. Cihaz seçtiğinizde bilgiler otomatik doldurulur."
-                                                >
-                                                    <Select
-                                                        placeholder={filteredDevices.length > 0 ? "Cihaz seçiniz..." : "Önce müşteri seçiniz"}
-                                                        showSearch
-                                                        allowClear
-                                                        disabled={filteredDevices.length === 0}
-                                                        onChange={handleDeviceChange}
-                                                        filterOption={(input, option) =>
-                                                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                        }
+                                            <Row gutter={16}>
+                                                <Col span={24}>
+                                                    <Form.Item
+                                                        label="Müşteri Adı"
+                                                        style={{ marginBottom: 16 }}
                                                     >
-                                                        {filteredDevices.map(device => (
-                                                            <Select.Option key={device.id} value={device.qrCode}>
-                                                                {device.qrCode} - {device.productName} ({device.systemName})
-                                                            </Select.Option>
-                                                        ))}
-                                                    </Select>
-                                                </Form.Item>
-                                                {filteredDevices.length === 0 && selectedCustomer && (
-                                                    <div style={{
-                                                        color: '#ff4d4f',
-                                                        fontSize: '12px',
-                                                        marginTop: '-16px'
-                                                    }}>
-                                                        ℹ️ Bu site için kayıtlı cihaz bulunamadı. Aşağıdaki alanları
-                                                        manuel olarak doldurunuz.
-                                                    </div>
-                                                )}
-                                            </Col>
-                                        </Row>
+                                                        <Input
+                                                            value={selectedCustomer?.siteName || ''}
+                                                            disabled
+                                                            placeholder="Genel Bilgiler'den müşteri seçiniz"
+                                                            style={{
+                                                                backgroundColor: '#fff',
+                                                                fontWeight: '500',
+                                                                color: '#000'
+                                                            }}
+                                                        />
+                                                    </Form.Item>
+                                                </Col>
+                                            </Row>
+
+                                            <Row gutter={16}>
+                                                <Col span={12}>
+                                                    <Form.Item
+                                                        name="blockName"
+                                                        label="Blok Seç"
+                                                        rules={[{ required: true, message: 'Lütfen blok seçiniz!' }]}
+                                                    >
+                                                        <Select
+                                                            placeholder={blockNamesForSite.length > 0 ? "Blok seçiniz" : "Önce müşteri seçiniz"}
+                                                            showSearch
+                                                            allowClear
+                                                            disabled={blockNamesForSite.length === 0}
+                                                            onChange={handleBlockChange}
+                                                            filterOption={(input, option) =>
+                                                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                            }
+                                                        >
+                                                            {blockNamesForSite.map((blockName, index) => (
+                                                                <Select.Option key={index} value={blockName}>
+                                                                    {blockName}
+                                                                </Select.Option>
+                                                            ))}
+                                                        </Select>
+                                                    </Form.Item>
+                                                </Col>
+                                                <Col span={12}>
+                                                    <Form.Item
+                                                        name="deviceQrCode"
+                                                        label="Cihaz Seç"
+                                                        tooltip="Blok seçmeden önce tüm site cihazları gösterilir. Blok seçtikten sonra sadece o bloğa ait cihazlar gösterilir."
+                                                    >
+                                                        <Select
+                                                            placeholder={filteredDevices.length > 0 ? "Cihaz seçiniz..." : selectedBlockName ? "Bu blokta cihaz bulunamadı" : "Önce blok seçiniz"}
+                                                            showSearch
+                                                            allowClear
+                                                            disabled={filteredDevices.length === 0}
+                                                            onChange={handleDeviceChange}
+                                                            filterOption={(input, option) =>
+                                                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                            }
+                                                        >
+                                                            {filteredDevices.map(device => (
+                                                                <Select.Option key={device.id} value={device.qrCode}>
+                                                                    {device.qrCode} - {device.productName} ({device.categoryName})
+                                                                </Select.Option>
+                                                            ))}
+                                                        </Select>
+                                                    </Form.Item>
+                                                </Col>
+                                            </Row>
+
+                                            {filteredDevices.length === 0 && selectedCustomer && selectedBlockName && (
+                                                <div style={{
+                                                    color: '#ff4d4f',
+                                                    fontSize: '12px',
+                                                    marginTop: '-8px',
+                                                    padding: '8px',
+                                                    backgroundColor: '#fff2e8',
+                                                    borderRadius: '4px'
+                                                }}>
+                                                    ℹ️ Seçilen blok için kayıtlı cihaz bulunamadı. Aşağıdaki alanları manuel olarak doldurunuz.
+                                                </div>
+                                            )}
+                                        </div>
 
                                         <Divider>Cihaz Detay Bilgileri</Divider>
 
@@ -1167,7 +1261,7 @@ const MaintenancePdf = () => {
                                         </Row>
 
                                         <Row gutter={16}>
-                                            <Col span={12}>
+                                            <Col span={8}>
                                                 <Form.Item
                                                     name="productPurpose"
                                                     label="Cihazın Kullanım Amacı"
@@ -1176,16 +1270,25 @@ const MaintenancePdf = () => {
                                                         message: 'Lütfen kullanım amacı giriniz!'
                                                     }]}
                                                 >
-                                                    <Input placeholder="Örn: Yangın Pompası"/>
+                                                    <Input placeholder="Otomatik dolacak veya manuel girin"/>
                                                 </Form.Item>
                                             </Col>
-                                            <Col span={12}>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="systemName"
+                                                    label="Sistem Adı"
+                                                    rules={[{required: true, message: 'Lütfen sistem adı giriniz!'}]}
+                                                    tooltip="Periyodik bakım çeklisti için gereklidir"
+                                                >
+                                                    <Input placeholder="Otomatik dolacak veya manuel girin"/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
                                                 <Form.Item
                                                     name="serviceCase"
                                                     label="Hizmet Koşulu"
-                                                    rules={[{required: true, message: 'Lütfen hizmet koşulu giriniz!'}]}
                                                 >
-                                                    <Input placeholder="Hizmet koşulu"/>
+                                                    <Input placeholder="İsteğe bağlı"/>
                                                 </Form.Item>
                                             </Col>
                                         </Row>
