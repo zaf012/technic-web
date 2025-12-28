@@ -52,6 +52,19 @@ const MaintenancePdf = () => {
     // Hizmet Koşulları için state
     const [serviceCases, setServiceCases] = useState([]);
 
+    // Rapor Kapsamı için state ve options
+    const [selectedScopes, setSelectedScopes] = useState([]);
+    const serviceScopeOptions = [
+        { value: 'PERIODIC_MAINTENANCE_CONTRACT', label: 'Periyodik Bakım Sözleşmeli' },
+        { value: 'ONSITE_INTERVENTION', label: 'Yerinde Müdahale' },
+        { value: 'WARRANTY_COVERAGE', label: 'Garanti İçi' },
+        { value: 'PERIODIC_MAINTENANCE', label: 'Periyodik Bakım' },
+        { value: 'NON_WARRANTY_COVERAGE', label: 'Garanti Dışı' },
+        { value: 'DAMAGE_ASSESSMENT', label: 'Hasar Tespit' },
+        { value: 'FAULT', label: 'Arıza' },
+        { value: 'WORKSHOP', label: 'Atölye' }
+    ];
+
     // AŞAMA 2 - Fotoğraf upload state'leri
     const [image1, setImage1] = useState('');
     const [image2, setImage2] = useState('');
@@ -262,6 +275,7 @@ const MaintenancePdf = () => {
         setBlockNamesForSite([]);
         setSelectedBlockName(null);
         setSelectedDeviceData(null);
+        setSelectedScopes([]); // Rapor Kapsamı temizle
         setChecklistItems([]);
         setCheckedItemsMap({});
         setImage1('');
@@ -281,6 +295,7 @@ const MaintenancePdf = () => {
         setBlockNamesForSite([]);
         setSelectedBlockName(null);
         setSelectedDeviceData(null);
+        setSelectedScopes([]); // Rapor Kapsamı temizle
         setChecklistItems([]);
         setCheckedItemsMap({});
         setImage1('');
@@ -445,6 +460,15 @@ const MaintenancePdf = () => {
         }
     };
 
+    // Rapor Kapsamı checkbox değişikliğini yönet
+    const handleScopeChange = (value) => {
+        setSelectedScopes(prev =>
+            prev.includes(value)
+                ? prev.filter(item => item !== value)
+                : [...prev, value]
+        );
+    };
+
     // Sistem seçildiğinde checklist maddelerini getir
     const handleSystemChange = async (systemName) => {
         if (!systemName) {
@@ -574,6 +598,7 @@ const MaintenancePdf = () => {
                     serviceCarKm: values.serviceCarKm || '',
                     servicePersonnel: values.servicePersonnel || '',
                     description: values.description || '',
+                    serviceScopes: selectedScopes, // Rapor Kapsamı - List<String>
                     image1: image1 || '',
                     image2: image2 || '',
                     image3: image3 || '',
@@ -581,6 +606,7 @@ const MaintenancePdf = () => {
                 };
 
                 console.log('Gönderilen veri:', requestData);
+                console.log('Rapor Kapsamı:', selectedScopes);
                 const response = await maintenancePdfService.exportPdf(requestData);
                 console.log('Backend yanıtı:', response);
                 console.log('fileContent type:', typeof response.fileContent);
@@ -635,6 +661,7 @@ const MaintenancePdf = () => {
                 setIsModalVisible(false);
                 form.resetFields();
                 setSelectedCustomer(null);
+                setSelectedScopes([]); // Rapor Kapsamı temizle
                 setChecklistItems([]);
                 setCheckedItemsMap({});
                 setImage1('');
@@ -1438,6 +1465,61 @@ const MaintenancePdf = () => {
                                                 </Form.Item>
                                             </Col>
                                         </Row>
+
+                                        <Divider>Rapor Kapsamı</Divider>
+
+                                        <div style={{
+                                            padding: '16px',
+                                            backgroundColor: '#fafafa',
+                                            border: '1px solid #d9d9d9',
+                                            borderRadius: '4px',
+                                            marginBottom: '24px'
+                                        }}>
+                                            <div style={{
+                                                display: 'grid',
+                                                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                                                gap: '12px'
+                                            }}>
+                                                {serviceScopeOptions.map(option => (
+                                                    <label
+                                                        key={option.value}
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            padding: '8px 12px',
+                                                            backgroundColor: '#fff',
+                                                            border: '1px solid #d9d9d9',
+                                                            borderRadius: '4px',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.3s',
+                                                            ':hover': {
+                                                                borderColor: '#1890ff',
+                                                                backgroundColor: '#e6f7ff'
+                                                            }
+                                                        }}
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            value={option.value}
+                                                            checked={selectedScopes.includes(option.value)}
+                                                            onChange={(e) => handleScopeChange(e.target.value)}
+                                                            style={{
+                                                                marginRight: '8px',
+                                                                cursor: 'pointer',
+                                                                width: '16px',
+                                                                height: '16px'
+                                                            }}
+                                                        />
+                                                        <span style={{ fontSize: '14px' }}>{option.label}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                            {selectedScopes.length > 0 && (
+                                                <div style={{ marginTop: '12px', fontSize: '13px', color: '#1890ff' }}>
+                                                    ✓ Seçilen: {selectedScopes.length} öğe
+                                                </div>
+                                            )}
+                                        </div>
 
                                         <Form.Item
                                             name="description"
