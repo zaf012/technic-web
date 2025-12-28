@@ -13,6 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import config from '../config';
 import maintenancePdfService from '../services/MaintenancePdfService';
 import {siteProductInventoryService} from '../services/SiteProductInventoryService';
+import serviceCaseService from '../services/ServiceCaseService';
 import dayjs from 'dayjs';
 
 const {TextArea} = Input;
@@ -48,6 +49,9 @@ const MaintenancePdf = () => {
     const [selectedBlockName, setSelectedBlockName] = useState(null);
     const [selectedDeviceData, setSelectedDeviceData] = useState(null);
 
+    // Hizmet Koşulları için state
+    const [serviceCases, setServiceCases] = useState([]);
+
     // AŞAMA 2 - Fotoğraf upload state'leri
     const [image1, setImage1] = useState('');
     const [image2, setImage2] = useState('');
@@ -71,7 +75,8 @@ const MaintenancePdf = () => {
                     fetchSites(),
                     fetchSquares(),
                     fetchBlocks(),
-                    fetchSiteDevices()
+                    fetchSiteDevices(),
+                    fetchServiceCases()
                 ]);
             } catch (error) {
                 console.error('Veri yükleme hatası:', error);
@@ -213,6 +218,19 @@ const MaintenancePdf = () => {
             console.error('Cihaz envanteri alınırken hata:', error);
             toast.error('Cihaz envanteri alınırken hata oluştu!');
             setSiteDevices([]);
+        }
+    };
+
+    // Hizmet koşullarını getir
+    const fetchServiceCases = async () => {
+        try {
+            const data = await serviceCaseService.fetchAll();
+            console.log('📋 Hizmet koşulları yüklendi:', data);
+            setServiceCases(data || []);
+        } catch (error) {
+            console.error('Hizmet koşulları alınırken hata:', error);
+            toast.error('Hizmet koşulları alınırken hata oluştu!');
+            setServiceCases([]);
         }
     };
 
@@ -377,13 +395,19 @@ const MaintenancePdf = () => {
             form.setFieldsValue({
                 productSerialNo: device.qrCode || '',
                 productBrand: device.brandName || '',
-                productModel: device.modelName || '',
+                productModel: device.productName || '',
                 productPurpose: device.categoryName || '',
                 systemName: device.systemName || '',
                 floor: device.floorNumber !== null && device.floorNumber !== undefined ? device.floorNumber.toString() : '',
-                location: device.location || '',
-                serviceCase: '' // Hizmet koşulu - şu an boş
+                location: device.location || ''
+                // serviceCase burada set edilmiyor - kullanıcı manuel seçecek
             });
+
+            // Sistem adına göre checklist maddelerini yükle
+            if (device.systemName) {
+                console.log('🔵 Cihaz seçildi, checklist yükleniyor. Sistem:', device.systemName);
+                handleSystemChange(device.systemName);
+            }
         }
     };
 
@@ -1237,7 +1261,10 @@ const MaintenancePdf = () => {
                                                     label="Cihaz Seri No."
                                                     rules={[{required: true, message: 'Lütfen cihaz seri no giriniz!'}]}
                                                 >
-                                                    <Input placeholder="Örn: Hv-12345-ABC"/>
+                                                    <Input
+                                                        placeholder="Otomatik dolacak"
+                                                        disabled={!!selectedDeviceData}
+                                                    />
                                                 </Form.Item>
                                             </Col>
                                             <Col span={8}>
@@ -1246,7 +1273,10 @@ const MaintenancePdf = () => {
                                                     label="Cihaz Markası"
                                                     rules={[{required: true, message: 'Lütfen cihaz markası giriniz!'}]}
                                                 >
-                                                    <Input placeholder="Örn: WILO"/>
+                                                    <Input
+                                                        placeholder="Otomatik dolacak"
+                                                        disabled={!!selectedDeviceData}
+                                                    />
                                                 </Form.Item>
                                             </Col>
                                             <Col span={8}>
@@ -1255,7 +1285,10 @@ const MaintenancePdf = () => {
                                                     label="Cihaz Modeli"
                                                     rules={[{required: true, message: 'Lütfen cihaz modeli giriniz!'}]}
                                                 >
-                                                    <Input placeholder="Örn: Wilo 523"/>
+                                                    <Input
+                                                        placeholder="Otomatik dolacak"
+                                                        disabled={!!selectedDeviceData}
+                                                    />
                                                 </Form.Item>
                                             </Col>
                                         </Row>
@@ -1270,7 +1303,10 @@ const MaintenancePdf = () => {
                                                         message: 'Lütfen kullanım amacı giriniz!'
                                                     }]}
                                                 >
-                                                    <Input placeholder="Otomatik dolacak veya manuel girin"/>
+                                                    <Input
+                                                        placeholder="Otomatik dolacak"
+                                                        disabled={!!selectedDeviceData}
+                                                    />
                                                 </Form.Item>
                                             </Col>
                                             <Col span={8}>
@@ -1280,7 +1316,10 @@ const MaintenancePdf = () => {
                                                     rules={[{required: true, message: 'Lütfen sistem adı giriniz!'}]}
                                                     tooltip="Periyodik bakım çeklisti için gereklidir"
                                                 >
-                                                    <Input placeholder="Otomatik dolacak veya manuel girin"/>
+                                                    <Input
+                                                        placeholder="Otomatik dolacak"
+                                                        disabled={!!selectedDeviceData}
+                                                    />
                                                 </Form.Item>
                                             </Col>
                                             <Col span={8}>
@@ -1288,7 +1327,20 @@ const MaintenancePdf = () => {
                                                     name="serviceCase"
                                                     label="Hizmet Koşulu"
                                                 >
-                                                    <Input placeholder="İsteğe bağlı"/>
+                                                    <Select
+                                                        placeholder="Hizmet koşulu seçiniz"
+                                                        showSearch
+                                                        allowClear
+                                                        filterOption={(input, option) =>
+                                                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }
+                                                    >
+                                                        {serviceCases.map(sc => (
+                                                            <Select.Option key={sc.id} value={sc.serviceCaseName}>
+                                                                {sc.serviceCaseName}
+                                                            </Select.Option>
+                                                        ))}
+                                                    </Select>
                                                 </Form.Item>
                                             </Col>
                                         </Row>
@@ -1300,7 +1352,10 @@ const MaintenancePdf = () => {
                                                     label="Bulunduğu Kat"
                                                     rules={[{required: true, message: 'Lütfen kat bilgisi giriniz!'}]}
                                                 >
-                                                    <Input placeholder="Örn: -1"/>
+                                                    <Input
+                                                        placeholder="Otomatik dolacak"
+                                                        disabled={!!selectedDeviceData}
+                                                    />
                                                 </Form.Item>
                                             </Col>
                                             <Col span={12}>
@@ -1309,7 +1364,10 @@ const MaintenancePdf = () => {
                                                     label="Lokasyon"
                                                     rules={[{required: true, message: 'Lütfen lokasyon giriniz!'}]}
                                                 >
-                                                    <Input placeholder="Örn: 3.kat makine dairesi"/>
+                                                    <Input
+                                                        placeholder="Otomatik dolacak"
+                                                        disabled={!!selectedDeviceData}
+                                                    />
                                                 </Form.Item>
                                             </Col>
                                         </Row>
