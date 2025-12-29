@@ -411,7 +411,7 @@ const MaintenancePdf = () => {
                 productSerialNo: device.qrCode || '',
                 productBrand: device.brandName || '',
                 productModel: device.productName || '',
-                productPurpose: device.categoryName || '',
+                productPurpose: device.productPurpose || '',
                 systemName: device.systemName || '',
                 floor: device.floorNumber !== null && device.floorNumber !== undefined ? device.floorNumber.toString() : '',
                 location: device.location || ''

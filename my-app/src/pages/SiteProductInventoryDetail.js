@@ -105,7 +105,7 @@ const SiteProductInventoryDetail = () => {
             const data = await systemService.fetchAll();
             // Sadece description NULL olanları filtrele (sistem tanımları)
             const systemDefinitions = data.filter(system =>
-                !system.description || system.description === null || system.description.trim() === ''
+                !system.description || system.description.trim() === ''
             );
             setSystems(systemDefinitions);
         } catch (error) {
@@ -170,6 +170,7 @@ const SiteProductInventoryDetail = () => {
                 systemId: record.systemId,
                 categoryId: record.categoryId,
                 productInventoryDetailId: record.productInventoryDetailId,
+                productPurpose: record.productPurpose,
                 qrCode: record.qrCode,
                 active: record.active !== false,
             });
@@ -255,6 +256,7 @@ const SiteProductInventoryDetail = () => {
             (item.squareName || '').toLowerCase().includes(searchLower) ||
             (item.blockName || '').toLowerCase().includes(searchLower) ||
             (item.systemName || '').toLowerCase().includes(searchLower) ||
+            (item.productPurpose || '').toLowerCase().includes(searchLower) ||
             (item.categoryName || '').toLowerCase().includes(searchLower) ||
             (item.productName || '').toLowerCase().includes(searchLower) ||
             (item.location || '').toLowerCase().includes(searchLower)
@@ -262,13 +264,6 @@ const SiteProductInventoryDetail = () => {
     });
 
     const columns = [
-        {
-            title: 'Cihaz',
-            dataIndex: 'productName',
-            key: 'productName',
-            width: 150,
-            sorter: (a, b) => (a.productName || '').localeCompare(b.productName || ''),
-        },
         {
             title: 'QR Kod',
             dataIndex: 'qrCode',
@@ -281,12 +276,6 @@ const SiteProductInventoryDetail = () => {
             ),
         },
         {
-            title: 'Sistem Tanımı',
-            dataIndex: 'systemName',
-            key: 'systemName',
-            width: 150,
-        },
-        {
             title: 'Cihaz Kategorisi',
             dataIndex: 'categoryName',
             key: 'categoryName',
@@ -294,6 +283,26 @@ const SiteProductInventoryDetail = () => {
             render: (categoryName) => (
                 <span style={{ fontSize: '12px' }}>{categoryName || '-'}</span>
             ),
+        },
+        {
+            title: 'Sistem Tanımı',
+            dataIndex: 'systemName',
+            key: 'systemName',
+            width: 150,
+        },
+        {
+            title: 'Cihazın Kullanım Amacı',
+            dataIndex: 'productPurpose',
+            key: 'productPurpose',
+            width: 180,
+            render: (productPurpose) => productPurpose || '-',
+        },
+        {
+            title: 'Cihaz',
+            dataIndex: 'productName',
+            key: 'productName',
+            width: 150,
+            sorter: (a, b) => (a.productName || '').localeCompare(b.productName || ''),
         },
         {
             title: 'Site',
@@ -403,7 +412,7 @@ const SiteProductInventoryDetail = () => {
                     showSizeChanger: true,
                     showTotal: (total) => `Toplam ${total} kayıt`,
                 }}
-                scroll={{ x: 1800 }}
+                scroll={{ x: 2000 }}
                 bordered
                 size="small"
             />
@@ -513,6 +522,14 @@ const SiteProductInventoryDetail = () => {
                                 </Option>
                             ))}
                         </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="productPurpose"
+                        label="Cihazın Kullanım Amacı"
+                        rules={[{ required: true, message: 'Lütfen cihazın kullanım amacını yazınız!'  }]}
+                    >
+                        <Input placeholder="Cihazın kullanım amacını giriniz" />
                     </Form.Item>
 
                     <Form.Item

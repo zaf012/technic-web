@@ -261,17 +261,17 @@ const ProductInventoryCategories = () => {
 
     const columns = [
         {
+            title: 'Ana Kategori',
+            dataIndex: 'parentCategoryId',
+            key: 'parentCategoryId',
+            render: (parentId) => getParentName(parentId),
+            width: 200,
+        },
+        {
             title: 'Kategori Adı',
             dataIndex: 'categoryName',
             key: 'categoryName',
             sorter: (a, b) => (a.categoryName || '').localeCompare(b.categoryName || ''),
-            width: 200,
-        },
-        {
-            title: 'Üst Kategori',
-            dataIndex: 'parentCategoryId',
-            key: 'parentCategoryId',
-            render: (parentId) => getParentName(parentId),
             width: 200,
         },
         {
